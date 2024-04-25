@@ -46,6 +46,7 @@ final class HttpFilter(
       _.withHeaders(assetsHeaders*)
 
   private def redirectWrongDomain(req: RequestHeader): Option[Result] = {
+    false && // slight hack but this should work without too much investigation into lila's codebase.
     req.host != net.domain.value &&
     HTTPRequest.isRedirectable(req) &&
     !HTTPRequest.isProgrammatic(req) &&
