@@ -4,7 +4,7 @@ package tournament
 import play.api.data.{ Field, Form }
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.core.team.LightTeam
 import lila.tournament.Tournament
 import lila.tournament.ui.*
@@ -12,7 +12,7 @@ import lila.tournament.ui.*
 object form:
   given prefix: FormPrefix = FormPrefix.empty
 
-  val ui = TournamentForm(formHelper, i18nHelper, translatedVariantChoicesWithVariants)
+  val ui = TournamentForm(helpers)(translatedVariantChoicesWithVariantsById)
 
   def create(form: Form[?], leaderTeams: List[LightTeam])(using PageContext) =
     views.html.base.layout(
@@ -42,7 +42,7 @@ object form:
             )
           )
         ),
-        div(cls := "box box-pad tour__faq")(tournament.faq())
+        div(cls := "box box-pad tour__faq")(tournament.faq)
       )
 
   def edit(tour: Tournament, form: Form[?], myTeams: List[LightTeam])(using PageContext) =

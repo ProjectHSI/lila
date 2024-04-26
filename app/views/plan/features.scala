@@ -4,11 +4,8 @@ package html.plan
 import play.api.i18n.Lang
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
 
 object features:
-
-  val engineFullName = "Stockfish 16.1"
 
   def apply()(using PageContext) =
     views.html.base.layout(
@@ -49,7 +46,7 @@ object features:
             ),
             tr(custom(s"${lila.fishnet.FishnetLimiter.maxPerDay} per day"))(
               "Deep ",
-              engineFullName,
+              lila.ui.bits.engineFullName,
               " server analysis"
             ),
             tr(unlimited)(

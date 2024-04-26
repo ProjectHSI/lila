@@ -1,7 +1,7 @@
 package views.html.report
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.report.Report.WithSuspect
 import lila.report.ui.reportScore
 import lila.rating.UserPerfsExt.bestPerfs
@@ -93,7 +93,7 @@ object list:
       moreCss = cssTag("mod.report")
     ) {
       main(cls := "page-menu")(
-        views.html.mod.menu("report"),
+        views.html.mod.ui.menu("report"),
         div(id := "report_list", cls := "page-menu__content box")(
           div(cls := "header")(
             i(cls := "icon"),

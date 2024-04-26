@@ -1,7 +1,7 @@
 package views.html.tournament
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import scalalib.paginator.Paginator
 import lila.tournament.Schedule.Freq
 import lila.tournament.Tournament
@@ -15,7 +15,7 @@ object history:
       moreCss = cssTag("tournament.history")
     ) {
       main(cls := "page-menu arena-history")(
-        views.html.base.bits.pageMenuSubnav(
+        lila.ui.bits.pageMenuSubnav(
           allFreqs.map { f =>
             a(cls := freq.name.active(f.name), href := routes.Tournament.history(f.name))(
               nameOf(f)

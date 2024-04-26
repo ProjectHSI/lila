@@ -3,7 +3,7 @@ package views.html.streamer
 import play.api.i18n.Lang
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.i18n.LangList
 
 object bits:
@@ -30,7 +30,7 @@ object bits:
     )
 
   def menu(active: String, s: Option[lila.streamer.Streamer.WithContext])(using ctx: PageContext) =
-    views.html.base.bits.subnav(
+    lila.ui.bits.subnav(
       a(cls := active.active("index"), href := routes.Streamer.index())(allStreamers()),
       s.map { st =>
         frag(
@@ -78,9 +78,8 @@ object bits:
     }
 
   def contextual(streamers: List[UserId])(using Translate): Option[Tag] =
-    streamers.nonEmpty.option(div(cls := "context-streamers"):
-      streamers.map(contextual)
-    )
+    streamers.nonEmpty.option:
+      div(cls := "context-streamers")(streamers.map(contextual))
 
   def contextual(userId: UserId)(using Translate): Tag =
     redirectLink(userId)(cls := "context-streamer text", dataIcon := Icon.Mic):

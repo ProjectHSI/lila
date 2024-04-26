@@ -1,7 +1,7 @@
 package views.html.clas
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.clas.{ Clas, ClasInvite, ClasProgress, Student }
 import lila.common.String.html.richText
 import lila.rating.PerfType
@@ -37,7 +37,7 @@ object teacherDashboard:
       standardFlash,
       c.archived.map: archived =>
         div(cls := "clas-show__archived archived")(
-          bits.showArchived(archived),
+          ui.showArchived(archived),
           postForm(action := routes.Clas.archive(c.id.value, v = false)):
             form3.submit(trans.clas.reopen(), icon = none)(cls := "confirm button-empty")
         ),

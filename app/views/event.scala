@@ -3,7 +3,7 @@ package views.html
 import play.api.data.Form
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.common.{ Markdown, MarkdownRender }
 import lila.event.{ Event, EventForm }
 
@@ -207,6 +207,6 @@ object event:
       modules = jsModule("bits.flatpickr")
     ):
       main(cls := "page-menu")(
-        mod.menu("event"),
+        mod.ui.menu("event"),
         body
       )

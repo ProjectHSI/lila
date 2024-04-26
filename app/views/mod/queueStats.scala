@@ -3,7 +3,7 @@ package views.html.mod
 import play.api.libs.json.Json
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.mod.ModActivity.Period
 import lila.mod.ModQueueStats.*
 
@@ -16,7 +16,7 @@ object queueStats:
       pageModule = PageModule("mod.activity", Json.obj("op" -> "queues", "data" -> p.json)).some
     ):
       main(cls := "page-menu")(
-        views.html.mod.menu("queues"),
+        views.html.mod.ui.menu("queues"),
         div(cls := "page-menu__content index box mod-queues")(
           boxTop(
             h1(
@@ -29,7 +29,7 @@ object queueStats:
       )
 
   private def periodSelector(p: Result) =
-    views.html.base.bits.mselect(
+    lila.ui.bits.mselect(
       s"mod-activity__period-select box__top__actions",
       span(p.period.key),
       Period.values.toList.map: per =>

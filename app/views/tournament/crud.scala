@@ -4,7 +4,7 @@ package tournament
 import play.api.data.Form
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import scalalib.paginator.Paginator
 import lila.tournament.Tournament
 import lila.tournament.crud.CrudForm
@@ -26,7 +26,7 @@ object crud:
       moreJs = evenMoreJs
     ):
       main(cls := "page-menu")(
-        views.html.mod.menu("tour"),
+        views.html.mod.ui.menu("tour"),
         body
       )
 

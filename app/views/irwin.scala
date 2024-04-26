@@ -1,12 +1,12 @@
 package views.html
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.game.GameExt.{ perfType, playerBlurPercent }
 
 object irwin:
 
-  val ui = lila.irwin.IrwinUi(i18nHelper, dateHelper, userHelper, gameHelper)(
+  val ui = lila.irwin.IrwinUi(helpers)(
     playerBlurPercent = pov => pov.game.playerBlurPercent(pov.color)
   )
 
@@ -16,7 +16,7 @@ object irwin:
       moreCss = cssTag("mod.misc")
     ):
       main(cls := "page-menu")(
-        mod.menu("irwin"),
+        mod.ui.menu("irwin"),
         ui.dashboard(dashboard)
       )
 
@@ -26,6 +26,6 @@ object irwin:
       moreCss = cssTag("mod.misc")
     ):
       main(cls := "page-menu")(
-        mod.menu("kaladin"),
+        mod.ui.menu("kaladin"),
         irwin.ui.kaladin.dashboard(dashboard)
       )

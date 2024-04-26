@@ -3,17 +3,16 @@ package views.html.user
 import play.api.i18n.Lang
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
 
 import lila.rating.PerfType
 
 object bits:
 
-  lazy val ui = lila.user.ui.UserUiBits()(assetUrl)
+  lazy val ui = lila.user.ui.UserUiBits(assetUrl)
   export ui.*
 
   def communityMenu(active: String)(using Context) =
-    views.html.base.bits.pageMenuSubnav(
+    lila.ui.bits.pageMenuSubnav(
       a(cls := active.active("leaderboard"), href := routes.User.list)(trans.site.leaderboard()),
       a(
         cls  := active.active("ratings"),

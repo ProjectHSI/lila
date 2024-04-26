@@ -180,7 +180,7 @@ lazy val feed = module("feed",
 )
 
 lazy val ublog = module("ublog",
-  Seq(coreI18n, memo),
+  Seq(coreI18n, memo, ui),
   Seq(bloomFilter)
 )
 
@@ -330,7 +330,7 @@ lazy val irwin = module("irwin",
 )
 
 lazy val oauth = module("oauth",
-  Seq(memo, coreI18n),
+  Seq(memo, coreI18n, ui),
   Seq()
 )
 
@@ -345,7 +345,7 @@ lazy val shutup = module("shutup",
 )
 
 lazy val challenge = module("challenge",
-  Seq(game, room, oauth, ui),
+  Seq(game, room, oauth),
   Seq(lettuce) ++ tests.bundle
 )
 
@@ -415,7 +415,7 @@ lazy val relation = module("relation",
 )
 
 lazy val pref = module("pref",
-  Seq(coreI18n, memo),
+  Seq(coreI18n, memo, ui),
   Seq()
 )
 

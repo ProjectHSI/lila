@@ -2,7 +2,7 @@ package views
 package html.site
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.rating.PerfType
 
 object variant:
@@ -56,7 +56,7 @@ object variant:
       openGraph = openGraph
     ):
       main(cls := "page-menu")(
-        views.html.base.bits.pageMenuSubnav(
+        lila.ui.bits.pageMenuSubnav(
           lila.rating.PerfType.variants.map { pk =>
             val pt = lila.rating.PerfType(pk)
             a(

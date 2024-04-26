@@ -4,7 +4,7 @@ import play.api.data.Form
 import play.api.i18n.Lang
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.clas.ClasForm.ClasData
 import lila.clas.{ Clas, Student }
 
@@ -105,7 +105,7 @@ object clas:
       h1(cls := "box__top")(trans.clas.newClass()),
       postForm(cls := "form3", action := routes.Clas.create)(
         innerForm(form.form, none),
-        lila.web.views.hcaptcha.tag(form),
+        lila.ui.bits.hcaptcha(form),
         form3.actions(
           a(href := routes.Clas.index)(trans.site.cancel()),
           form3.submit(trans.site.apply())

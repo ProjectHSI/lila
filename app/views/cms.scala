@@ -3,7 +3,7 @@ package views.html
 import play.api.data.Form
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.cms.CmsPage
 import lila.common.String.shorten
 
@@ -38,7 +38,7 @@ object cms:
       moreCss = cssTag("cms"),
       modules = jsModule("cms")
     ):
-      main(cls := "page-menu")(mod.menu("cms"), div(cls := "page-menu__content cms box")(body))
+      main(cls := "page-menu")(mod.ui.menu("cms"), div(cls := "page-menu__content cms box")(body))
 
   def index(pages: List[CmsPage])(using PageContext) =
     layout("Lichess pages"):

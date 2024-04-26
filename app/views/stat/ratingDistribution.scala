@@ -4,7 +4,7 @@ package stat
 import play.api.libs.json.Json
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.common.Json.given
 
 import lila.rating.PerfType
@@ -38,7 +38,7 @@ object ratingDistribution:
           boxTop(
             h1(
               trans.site.weeklyPerfTypeRatingDistribution(
-                views.html.base.bits.mselect(
+                lila.ui.bits.mselect(
                   "variant-stats",
                   span(perfType.trans),
                   lila.rating.PerfType.leaderboardable

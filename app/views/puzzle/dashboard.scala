@@ -4,7 +4,7 @@ package html.puzzle
 import play.api.libs.json.Json
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.puzzle.{ PuzzleDashboard, PuzzleTheme }
 
 object dashboard:
@@ -102,7 +102,7 @@ object dashboard:
               title,
               strong(subtitle)
             ),
-            views.html.base.bits.mselect(
+            lila.ui.bits.mselect(
               s"${baseClass}__day-select box__top__actions",
               span(trans.site.nbDays.pluralSame(days)),
               PuzzleDashboard.dayChoices.map { d =>

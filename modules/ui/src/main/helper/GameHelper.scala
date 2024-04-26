@@ -3,24 +3,15 @@ package lila.ui
 import chess.{ Clock, Color, Mode, Outcome, Ply }
 
 import lila.ui.ScalatagsTemplate.{ *, given }
-import lila.ui.{ Context, I18nHelper, StringHelper, AssetHelper, UserHelper }
 import lila.core.LightUser
 import lila.core.game.{ Namer, Game, Player, LightPlayer }
-import lila.core.i18n.{ I18nKey as trans, defaultLang, Translate }
 import lila.core.config.BaseUrl
 
-final class GameHelper(
-    i18nHelper: I18nHelper,
-    stringHelper: StringHelper,
-    assetHelper: AssetHelper,
-    userHelper: UserHelper,
-    netBaseUrl: BaseUrl,
-    namer: Namer,
-    lightUserSync: LightUser.GetterSync
-):
-  import i18nHelper.given
-  import stringHelper.*
-  import userHelper.*
+trait GameHelper:
+  self: I18nHelper & StringHelper & AssetHelper & UserHelper =>
+
+  protected val namer: Namer
+  def netBaseUrl: BaseUrl
 
   def titleGame(g: Game) =
     val speed   = chess.Speed(g.clock.map(_.config)).name
@@ -188,3 +179,36 @@ final class GameHelper(
 
   def aiNameFrag(level: Int)(using Translate) =
     raw(aiName(level).replace(" ", "&nbsp;"))
+
+  def variantLink(
+      variant: chess.variant.Variant,
+      pk: PerfKey,
+      initialFen: Option[chess.format.Fen.Full] = None,
+      shortName: Boolean = false
+  )(using Translate): Frag =
+
+    def link(href: String, title: String, name: String) = a(
+      cls     := "variant-link",
+      st.href := href,
+      targetBlank,
+      st.title := title
+    )(name)
+
+    if variant.exotic then
+      link(
+        href = variant match
+          case chess.variant.FromPosition =>
+            s"""${routes.Editor.index}?fen=${initialFen.so(_.value.replace(' ', '_'))}"""
+          case v => routes.Cms.variant(v.key).url
+        ,
+        title = variant.title,
+        name = (if shortName && variant == chess.variant.KingOfTheHill then variant.shortName
+                else variant.name).toUpperCase
+      )
+    else if pk == PerfKey.correspondence then
+      link(
+        href = s"${routes.Main.faq}#correspondence",
+        title = PerfKey.correspondence.perfDesc.txt(),
+        name = PerfKey.correspondence.perfTrans
+      )
+    else span(title := pk.perfDesc.txt())(pk.perfTrans)

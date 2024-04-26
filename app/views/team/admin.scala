@@ -4,7 +4,7 @@ import play.api.data.{ Field, Form }
 import play.api.i18n.Lang
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.team.{ Team, TeamSecurity }
 
 object admin:
@@ -146,7 +146,7 @@ $('#form3-message').val($('#form3-message').val() + e.target.dataset.copyurl + '
                 ul:
                   tours.map: t =>
                     li(
-                      tournamentLink(t),
+                      views.html.tournament.ui.tournamentLink(t),
                       " ",
                       momentFromNow(t.startsAt),
                       " ",

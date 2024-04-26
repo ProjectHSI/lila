@@ -3,7 +3,7 @@ package views.html.user
 import play.api.i18n.Lang
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.appeal.Appeal
 import lila.evaluation.Display
 import lila.mod.IpRender.RenderIp
@@ -12,7 +12,8 @@ import lila.mod.ui.ModUserTableUi
 import lila.core.playban.RageSit
 import lila.security.{ Dated, UserAgentParser, UserClient, UserLogins }
 import lila.core.perm.Permission
-import lila.user.{ Me, WithPerfsAndEmails }
+import lila.ui.Context
+import lila.core.i18n.Translate
 
 object mod:
 

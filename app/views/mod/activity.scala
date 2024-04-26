@@ -3,7 +3,7 @@ package views.html.mod
 import play.api.libs.json.Json
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.mod.ModActivity.*
 
 object activity:
@@ -16,7 +16,7 @@ object activity:
         PageModule("mod.activity", Json.obj("op" -> "activity", "data" -> lila.mod.ModActivity.json(p))).some
     ) {
       main(cls := "page-menu")(
-        views.html.mod.menu("activity"),
+        views.html.mod.ui.menu("activity"),
         div(cls := "page-menu__content index box mod-activity")(
           boxTop(
             h1(
@@ -32,7 +32,7 @@ object activity:
     }
 
   private def whoSelector(p: Result) =
-    views.html.base.bits
+    lila.ui.bits
       .mselect(
         s"mod-activity__who-select box__top__actions",
         span(if p.who == Who.Team then "Team" else "My"),
@@ -49,7 +49,7 @@ object activity:
       )
 
   private def periodSelector(p: Result) =
-    views.html.base.bits
+    lila.ui.bits
       .mselect(
         s"mod-activity__period-select box__top__actions",
         span(p.period.key),

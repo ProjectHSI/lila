@@ -1,13 +1,13 @@
 package views.html.mod
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.common.String.html.richText
 import lila.report.{ Reason, Report }
 
 object inquiry:
 
-  lazy val ui = lila.mod.ui.ModInquiryUi(formHelper, dateHelper, i18nHelper, htmlHelper, userHelper)
+  lazy val ui = lila.mod.ui.ModInquiryUi(helpers)
 
   // simul game study relay tournament
   private val commFlagRegex = """\[FLAG\] (\w+)/(\w{8})(?:/w)? (.+)""".r

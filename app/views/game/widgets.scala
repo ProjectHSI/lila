@@ -2,7 +2,7 @@ package views.html
 package game
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.core.game.{ Player }
 import lila.game.GameExt.perfType
 import lila.game.Player.nameSplit
@@ -36,7 +36,7 @@ object widgets:
                       frag(" ", trans.site.by(userIdLink(user.some, None, withOnline = false)))
                     },
                     separator,
-                    bits.variantLink(g.variant, g.perfType)
+                    variantLink(g.variant, g.perfType)
                   )
                 else
                   frag(
@@ -50,7 +50,7 @@ object widgets:
               g.pgnImport.flatMap(_.date).fold[Frag](momentFromNowWithPreload(g.createdAt))(frag(_)),
               g.tournamentId
                 .map { tourId =>
-                  frag(separator, tournamentLink(tourId))
+                  frag(separator, views.html.tournament.ui.tournamentLink(tourId))
                 }
                 .orElse(g.simulId.map { simulId =>
                   frag(separator, views.html.simul.bits.link(simulId))

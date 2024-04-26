@@ -1,7 +1,7 @@
 package views.html.site
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.cms.CmsPage
 
 object page:
@@ -36,7 +36,7 @@ if (this.innerText == 'YES') this.style.color = 'green'; else if (this.innerText
       active = "faq",
       moreCss = cssTag("faq")
     ):
-      lila.web.views.faq(i18nHelper, assetHelper)(
+      lila.web.views.faq(helpers, assetHelper)(
         standardRankableDeviation = lila.rating.Glicko.standardRankableDeviation,
         variantRankableDeviation = lila.rating.Glicko.variantRankableDeviation
       )
@@ -255,7 +255,7 @@ $('#asset-version-message').text(site.info.message);"""
       val external             = frag(" ", i(dataIcon := Icon.ExternalArrow))
       def activeCls(c: String) = cls := active.activeO(c)
       main(cls := "page-menu")(
-        views.html.base.bits.pageMenuSubnav(
+        lila.ui.bits.pageMenuSubnav(
           a(activeCls("about"), href := "/about")(trans.site.aboutX("lichess.org")),
           a(activeCls("news"), href := routes.Feed.index(1))("Lichess updates"),
           a(activeCls("faq"), href := routes.Main.faq)(trans.faq.faqAbbreviation()),

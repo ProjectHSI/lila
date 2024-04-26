@@ -2,7 +2,7 @@ package views
 package html.puzzle
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.common.LilaOpeningFamily
 import lila.puzzle.PuzzleOpening.Order
 import lila.puzzle.{ PuzzleOpening, PuzzleOpeningCollection }
@@ -82,7 +82,7 @@ object opening:
   )(href := routes.Puzzle.show(family.key.value))(family.name)
 
   def orderSelect(order: Order)(using Context) =
-    views.html.base.bits.mselect(
+    lila.ui.bits.mselect(
       "orders",
       span(order.name()),
       Order.list.map: o =>

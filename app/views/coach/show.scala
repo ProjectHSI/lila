@@ -2,7 +2,7 @@ package views.html
 package coach
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.common.String.html.richText
 import lila.core.data.RichText
 
@@ -70,7 +70,7 @@ object show:
             st.section(cls := "coach-show__posts")(
               h2(cls := "coach-show__title")(trans.ublog.latestBlogPosts()),
               div(cls := "ublog-post-cards ")(
-                posts.map { views.html.ublog.post.card(_) }
+                posts.map { views.html.ublog.postUi.card(_) }
               )
             )
           ),

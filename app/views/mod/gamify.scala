@@ -3,7 +3,7 @@ package views.html.mod
 import play.api.i18n.Lang
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.mod.Gamify.Period
 
 object gamify:
@@ -26,7 +26,7 @@ object gamify:
       moreCss = cssTag("mod.gamify")
     ) {
       main(cls := "page-menu")(
-        views.html.mod.menu("gamify"),
+        views.html.mod.ui.menu("gamify"),
         div(id := "mod-gamify", cls := "page-menu__content index box")(
           h1(cls := "box__top")(title),
           div(cls := "champs")(
@@ -66,7 +66,7 @@ object gamify:
       moreCss = cssTag("mod.gamify")
     ) {
       main(cls := "page-menu")(
-        views.html.mod.menu("gamify"),
+        views.html.mod.ui.menu("gamify"),
         div(id := "mod-gamify", cls := "page-menu__content box")(
           boxTop(
             h1(

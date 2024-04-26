@@ -2,8 +2,7 @@ package views.html
 package game
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
-import lila.web.ui.ChessHelper.underscoreFen
+
 import lila.game.GameExt.perfType
 
 object side:
@@ -48,7 +47,7 @@ object side:
                     div(
                       a(href := routes.Importer.importGame, title := trans.site.importGame.txt())("IMPORT"),
                       separator,
-                      bits.variantLink(game.variant, game.perfType, initialFen = initialFen, shortName = true)
+                      variantLink(game.variant, game.perfType, initialFen = initialFen, shortName = true)
                     )
                   else
                     frag(
@@ -56,7 +55,7 @@ object side:
                       separator,
                       (if game.rated then trans.site.rated else trans.site.casual).txt(),
                       separator,
-                      bits.variantLink(game.variant, game.perfType, initialFen, shortName = true)
+                      variantLink(game.variant, game.perfType, initialFen, shortName = true)
                     )
                 ),
                 game.pgnImport.flatMap(_.date).fold(momentFromNowWithPreload(game.createdAt))(frag(_))
@@ -121,7 +120,7 @@ object side:
             )
           .orElse:
             game.tournamentId.map: tourId =>
-              st.section(cls := "game__tournament-link")(tournamentLink(tourId))
+              st.section(cls := "game__tournament-link")(views.html.tournament.ui.tournamentLink(tourId))
           .orElse:
             game.swissId.map: swissId =>
               st.section(cls := "game__tournament-link"):

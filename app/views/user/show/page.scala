@@ -4,7 +4,7 @@ import play.api.data.Form
 
 import lila.app.mashup.UserInfo
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.game.{ Game, GameFilter }
 
 import lila.core.data.SafeJsonStr
@@ -12,8 +12,8 @@ import lila.rating.UserWithPerfs.titleUsernameWithBestRating
 
 object page:
 
-  lazy val ui   = lila.user.ui.userShow(i18nHelper, dateHelper)
-  lazy val side = lila.user.ui.userShowSide(userHelper, i18nHelper, numberHelper)
+  lazy val ui   = lila.user.ui.userShow(helpers)
+  lazy val side = lila.user.ui.userShowSide(helpers)
 
   def activity(
       activities: Vector[lila.activity.ActivityView],

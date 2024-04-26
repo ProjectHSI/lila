@@ -3,7 +3,7 @@ package views.html.user
 import play.api.i18n.Lang
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.perfStat.{ PerfStat, PerfStatData }
 
 import lila.rating.PerfType
@@ -11,7 +11,7 @@ import lila.core.data.SafeJsonStr
 
 object perfStat:
 
-  lazy val ui = lila.perfStat.PerfStatUi(i18nHelper, dateHelper, userHelper)
+  lazy val ui = lila.perfStat.PerfStatUi(helpers)
 
   import trans.perfStat.*
 

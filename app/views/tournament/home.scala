@@ -3,7 +3,7 @@ package views.html.tournament
 import play.api.libs.json.Json
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.web.LangPath
 import lila.tournament.Schedule.Freq
 import lila.tournament.Tournament
@@ -44,7 +44,7 @@ object home:
               li(
                 userIdLink(w.userId.some),
                 a(title := w.tourName, href := routes.Tournament.show(w.tourId))(
-                  scheduledTournamentNameShortHtml(w.tourName)
+                  ui.scheduledTournamentNameShortHtml(w.tourName)
                 )
               )
           ),
@@ -64,7 +64,7 @@ object home:
           div(cls := "scheduled")(
             scheduled.map: tour =>
               tour.schedule.filter(s => s.freq != lila.tournament.Schedule.Freq.Hourly).map { s =>
-                a(href := routes.Tournament.show(tour.id), dataIcon := tournamentIcon(tour))(
+                a(href := routes.Tournament.show(tour.id), dataIcon := ui.tournamentIcon(tour))(
                   strong(tour.name(full = false)),
                   momentFromNow(s.at.instant)
                 )

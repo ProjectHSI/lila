@@ -1,11 +1,10 @@
 package views.html.user
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
 
 object download:
 
-  lazy val ui = lila.user.ui.userGamesDownload(userHelper, i18nHelper, formHelper)
+  lazy val ui = lila.user.ui.userGamesDownload(helpers)
 
   def apply(user: User)(using ctx: PageContext): Frag =
     views.html.base.layout(

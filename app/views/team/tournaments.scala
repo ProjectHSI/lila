@@ -4,7 +4,6 @@ import play.api.i18n.Lang
 
 import lila.app.mashup.TeamInfo
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
 
 object tournaments:
 
@@ -52,7 +51,9 @@ object tournaments:
             "soon"      -> any.isNowOrSoon
           )
         )(
-          td(cls := "icon")(iconTag(any.value.fold(tournamentIcon, _.perfType.icon))),
+          td(cls := "icon")(
+            iconTag(any.value.fold(views.html.tournament.ui.tournamentIcon, _.perfType.icon))
+          ),
           td(cls := "header")(
             any.value.fold(
               t =>

@@ -2,7 +2,7 @@ package views.html
 package study
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.web.LangPath
 import scalalib.paginator.Paginator
 import lila.study.Study.WithChaptersAndLiked
@@ -140,7 +140,7 @@ object list:
       ctx: PageContext
   ) =
     val nonMineOrder = if order == Order.Mine then Order.Hot else order
-    views.html.base.bits.pageMenuSubnav(
+    lila.ui.bits.pageMenuSubnav(
       a(cls := active.active("all"), href := routes.Study.all(nonMineOrder.key))(trans.study.allStudies()),
       ctx.isAuth.option(bits.authLinks(active, nonMineOrder)),
       a(cls := List("active" -> active.startsWith("topic")), href := routes.Study.topics):

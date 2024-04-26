@@ -3,7 +3,7 @@ package views.html.challenge
 import play.api.libs.json.{ JsObject, Json }
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.challenge.Challenge
 
 object bits:
@@ -49,7 +49,7 @@ object bits:
         dataIcon := (if c.initialFen.isDefined then Icon.Feather else c.perfType.icon)
       )(
         div(
-          views.html.game.bits.variantLink(c.variant, c.perfType, c.initialFen),
+          variantLink(c.variant, c.perfType, c.initialFen),
           br,
           span(cls := "clock"):
             c.daysPerTurn

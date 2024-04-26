@@ -2,7 +2,7 @@ package views.html
 package userTournament
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import scalalib.paginator.Paginator
 
 object bits:
@@ -34,7 +34,7 @@ object bits:
       modules = modules
     ):
       main(cls := "page-menu")(
-        views.html.base.bits.pageMenuSubnav(
+        lila.ui.bits.pageMenuSubnav(
           a(cls := path.active("created"), href := routes.UserTournament.path(u.username, "created"))(
             trans.arena.created()
           ),

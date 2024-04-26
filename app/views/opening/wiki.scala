@@ -3,7 +3,7 @@ package views.html.opening
 import chess.opening.Opening
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.opening.{ OpeningPage, OpeningWiki }
 
 object wiki:
@@ -46,7 +46,7 @@ object wiki:
               page.query.openingAndExtraMoves._1.map { canonical =>
                 p(
                   br,
-                  a(href := bits.keyUrl(canonical.key))(
+                  a(href := bits.openingKeyUrl(canonical.key))(
                     "This is an unnamed variation. Go to the canonical opening page."
                   )
                 )

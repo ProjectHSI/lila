@@ -1,7 +1,7 @@
 package views.html.tv
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.game.GameExt.perfType
 
 object side:
@@ -11,7 +11,7 @@ object side:
       champions: lila.tv.Tv.Champions,
       baseUrl: String
   ): Frag =
-    views.html.base.bits.subnav(
+    lila.ui.bits.subnav(
       lila.tv.Tv.Channel.list.map: c =>
         a(
           href := s"$baseUrl/${c.key}",
@@ -52,7 +52,7 @@ object side:
               separator,
               (if game.rated then trans.site.rated else trans.site.casual).txt(),
               separator,
-              views.html.game.bits.variantLink(game.variant, game.perfType, shortName = true)
+              variantLink(game.variant, game.perfType, shortName = true)
             )
           )
         ),
@@ -64,7 +64,7 @@ object side:
       game.tournamentId.map: tourId =>
         st.section(cls := "game__tournament-link"):
           a(href := routes.Tournament.show(tourId), dataIcon := Icon.Trophy, cls := "text"):
-            tournamentIdToName(tourId)
+            views.html.tournament.ui.tournamentIdToName(tourId)
     )
 
   def sides(

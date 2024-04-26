@@ -1,7 +1,7 @@
 package views.html.tournament
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.tournament.Tournament
 
 object finishedList:
@@ -11,7 +11,7 @@ object finishedList:
 
   def apply(t: Tournament)(using PageContext): Tag =
     tr(cls := "paginated")(
-      td(cls := "icon")(iconTag(tournamentIcon(t))),
+      td(cls := "icon")(iconTag(ui.tournamentIcon(t))),
       header(t),
       td(cls := "date")(momentFromNow(t.startsAt)),
       td(cls := "players")(

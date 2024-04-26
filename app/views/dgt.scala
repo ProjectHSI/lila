@@ -3,7 +3,7 @@ package views.html
 import scala.util.chaining.*
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.oauth.AccessToken
 
 object dgt:
@@ -209,7 +209,7 @@ object dgt:
       csp = defaultCsp.withAnyWs.some
     ):
       main(cls := "account page-menu dgt")(
-        views.html.base.bits.pageMenuSubnav(
+        lila.ui.bits.pageMenuSubnav(
           a(cls := path.active("index"), href := routes.DgtCtrl.index)(
             dgtBoard()
           ),

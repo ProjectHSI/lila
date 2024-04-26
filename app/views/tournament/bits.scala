@@ -1,9 +1,11 @@
 package views.html.tournament
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.core.i18n.I18nKey as trans
 import lila.tournament.Tournament
+
+lazy val ui = lila.tournament.ui.TournamentUi(env.tournament.getTourName, lila.i18n.Translator.toDefault)
 
 object bits:
 
@@ -27,7 +29,7 @@ object bits:
         val visiblePlayers = (tour.nbPlayers >= 10).option(tour.nbPlayers)
         tr(
           td(cls := "name")(
-            a(cls := "text", dataIcon := tournamentIcon(tour), href := routes.Tournament.show(tour.id)):
+            a(cls := "text", dataIcon := ui.tournamentIcon(tour), href := routes.Tournament.show(tour.id)):
               tour.name(full = false)
           ),
           td(
@@ -44,19 +46,6 @@ object bits:
             case None => td(dataIcon := Icon.User, cls := "text")(visiblePlayers)
         )
     )
-
-  def userPrizeDisclaimer(ownerId: UserId) =
-    (!env.web.settings.prizeTournamentMakers
-      .get()
-      .value
-      .contains(ownerId))
-      .option(
-        div(cls := "tour__prize")(
-          "This tournament is not organized by Lichess.",
-          br,
-          "If it has prizes, Lichess is not responsible for paying them."
-        )
-      )
 
   def scheduleJsI18n(using Context) = i18nJsObject(schedulei18nKeys)
 

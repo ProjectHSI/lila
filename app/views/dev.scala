@@ -3,7 +3,6 @@ package views.html
 import play.api.data.Form
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
 
 object dev:
 
@@ -14,7 +13,7 @@ object dev:
       moreCss = cssTag("mod.misc")
     ):
       main(cls := "page-menu")(
-        mod.menu("setting"),
+        mod.ui.menu("setting"),
         div(id := "settings", cls := "page-menu__content box box-pad")(
           h1(cls := "box__top")(title),
           p("Tread lightly."),
@@ -37,7 +36,7 @@ object dev:
       moreCss = frag(cssTag("mod.misc"), cssTag("form3"))
     ):
       main(cls := "page-menu")(
-        views.html.mod.menu("cli"),
+        mod.ui.menu("cli"),
         div(id := "dev-cli", cls := "page-menu__content box box-pad")(
           h1(cls := "box__top")(title),
           p(

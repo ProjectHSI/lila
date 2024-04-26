@@ -1,7 +1,7 @@
 package views.html.opening
 
 import lila.app.templating.Environment.{ *, given }
-import lila.ui.ScalatagsTemplate.{ *, given }
+
 import lila.opening.OpeningPage
 
 object show:
@@ -44,7 +44,7 @@ object show:
                     frag(
                       if i == 0 then emptyFrag else if i == 1 then ": " else ", ",
                       key.fold(span(cls := className)(name)) { k =>
-                        a(href := keyUrl(k))(cls := className)(name)
+                        a(href := openingKeyUrl(k))(cls := className)(name)
                       }
                     )
               ),
