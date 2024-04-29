@@ -1,5 +1,4 @@
-package views.html
-package relay
+package views.relay
 
 import play.api.libs.json.Json
 
@@ -17,7 +16,7 @@ object show:
       socketVersion: SocketVersion,
       crossSiteIsolation: Boolean = true
   )(using ctx: PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = rt.fullName,
       moreCss = cssTag("analyse.relay"),
       modules = analyseNvuiTag,
@@ -32,7 +31,7 @@ object show:
             "tagTypes" -> lila.study.PgnTags.typesToString,
             "userId"   -> ctx.userId,
             "chat" -> chatOption.map: c =>
-              chat
+              views.chat
                 .json(
                   c.chat,
                   c.lines,
@@ -45,19 +44,17 @@ object show:
                   broadcastMod = rt.tour.tier.isDefined && isGranted(_.BroadcastTimeout),
                   hostIds = rt.study.members.ids.toList
                 ),
-            "socketUrl"     -> views.html.study.show.socketUrl(rt.study.id),
+            "socketUrl"     -> views.study.socketUrl(rt.study.id),
             "socketVersion" -> socketVersion
-          ) ++ views.html.board.bits.explorerAndCevalConfig
+          ) ++ views.board.bits.explorerAndCevalConfig
       ).some,
       zoomable = true,
       csp = (if crossSiteIsolation then analysisCsp else defaultCsp).withExternalAnalysisApis.some,
-      openGraph = lila.web
-        .OpenGraph(
-          title = rt.fullName,
-          url = s"$netBaseUrl${rt.path}",
-          description = shorten(rt.tour.description, 152)
-        )
-        .some
+      openGraph = OpenGraph(
+        title = rt.fullName,
+        url = s"$netBaseUrl${rt.path}",
+        description = shorten(rt.tour.description, 152)
+      ).some
     ):
       main(cls := "analyse is-relay has-relay-tour")(
         div(cls := "box relay-tour")(
@@ -71,7 +68,7 @@ object show:
             ),
             div(cls := "relay-tour__header__image"):
               rt.tour.image.map: imgId =>
-                img(src := views.html.relay.tour.thumbnail.url(imgId, _.Size.Large), alt := "loading...")
+                img(src := views.relay.tour.thumbnail.url(imgId, _.Size.Large), alt := "loading...")
           )
         ),
         st.aside(cls := "relay-tour__side")(div(cls := "relay-tour__side__preload"))

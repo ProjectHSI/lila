@@ -1,5 +1,4 @@
-package views.html
-package tournament
+package views.tournament
 
 import play.api.libs.json.Json
 
@@ -7,15 +6,9 @@ import lila.common.Json.given
 import lila.app.templating.Environment.{ *, given }
 import lila.tournament.Tournament
 
-def faq(using PageContext) =
-  views.html.base.layout(
-    title = trans.site.tournamentFAQ.txt(),
-    moreCss = cssTag("page")
-  )(show.ui.faq.page)
-
 object show:
 
-  lazy val ui = lila.tournament.ui.TournamentShow(helpers, views.html.gathering)(
+  lazy val ui = lila.tournament.ui.TournamentShow(helpers, views.gathering)(
     variantTeamLinks = lila.team.Team.variants.view
       .mapValues: team =>
         (team, teamLink(team, true))
@@ -30,16 +23,16 @@ object show:
       streamers: List[UserId],
       shieldOwner: Option[UserId]
   )(using ctx: PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = s"${tour.name()} #${tour.id}",
       pageModule = PageModule(
         "tournament",
         Json.obj(
           "data"   -> data,
-          "i18n"   -> bits.jsI18n(tour),
+          "i18n"   -> views.tournament.ui.jsI18n(tour),
           "userId" -> ctx.userId,
           "chat" -> chatOption.map: c =>
-            chat.json(
+            views.chat.json(
               c.chat,
               c.lines,
               name = trans.site.chatRoom.txt(),
@@ -56,23 +49,21 @@ object show:
         if tour.isTeamBattle then "tournament.show.team-battle"
         else "tournament.show"
       ,
-      openGraph = lila.web
-        .OpenGraph(
-          title = s"${tour.name()}: ${tour.variant.name} ${tour.clock.show} ${tour.mode.name} #${tour.id}",
-          url = s"$netBaseUrl${routes.Tournament.show(tour.id).url}",
-          description =
-            s"${tour.nbPlayers} players compete in the ${showEnglishDate(tour.startsAt)} ${tour.name()}. " +
-              s"${tour.clock.show} ${tour.mode.name} games are played during ${tour.minutes} minutes. " +
-              tour.winnerId.fold("Winner is not yet decided."): winnerId =>
-                s"${titleNameOrId(winnerId)} takes the prize home!"
-        )
-        .some,
+      openGraph = OpenGraph(
+        title = s"${tour.name()}: ${tour.variant.name} ${tour.clock.show} ${tour.mode.name} #${tour.id}",
+        url = s"$netBaseUrl${routes.Tournament.show(tour.id).url}",
+        description =
+          s"${tour.nbPlayers} players compete in the ${showEnglishDate(tour.startsAt)} ${tour.name()}. " +
+            s"${tour.clock.show} ${tour.mode.name} games are played during ${tour.minutes} minutes. " +
+            tour.winnerId.fold("Winner is not yet decided."): winnerId =>
+              s"${titleNameOrId(winnerId)} takes the prize home!"
+      ).some,
       csp = defaultCsp.withLilaHttp.some
     ):
       ui.show(
         tour,
         verdicts,
         shieldOwner,
-        chat = chatOption.isDefined.option(views.html.chat.frag),
-        streamers = views.html.streamer.bits.contextual(streamers)
+        chat = chatOption.isDefined.option(views.chat.frag),
+        streamers = views.streamer.bits.contextual(streamers)
       )

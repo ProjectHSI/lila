@@ -1,4 +1,4 @@
-package views.html.report
+package views.report
 
 import play.api.data.Form
 
@@ -9,14 +9,14 @@ import lila.report.ReportUi.translatedReasonChoices
 object form:
 
   def apply(form: Form[?], reqUser: Option[User] = None)(using ctx: PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = trans.site.reportAUser.txt(),
       moreCss = cssTag("form3"),
       moreJs = embedJsUnsafeLoadThen(
         """$('#form3-reason').on('change', function() {
             $('.report-reason').addClass('none').filter('.report-reason-' + this.value).removeClass('none');
           })"""
-      )
+      )(ctx.nonce)
     ):
       val defaultReason = form("reason").value.orElse(translatedReasonChoices.headOption.map(_._1))
       main(cls := "page-small box box-pad report")(

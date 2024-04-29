@@ -1,4 +1,4 @@
-package views.html.auth
+package views.auth
 
 import play.api.data.Form
 
@@ -10,7 +10,7 @@ object checkYourEmail:
       userEmail: Option[lila.security.EmailConfirm.UserEmail],
       form: Option[Form[?]] = None
   )(using ctx: PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = "Check your email",
       moreCss = cssTag("email-confirm")
     ) {
@@ -42,7 +42,7 @@ var currentError = "This is already your current email.";
 email.setCustomValidity(currentError);
 email.addEventListener("input", function() {
 email.setCustomValidity(email.validity.patternMismatch ? currentError : "");
-      });"""),
+      });""")(ctx.nonce),
                 submitButton(cls := "button")("Change it"),
                 form.map: f =>
                   errMsg(f("email"))

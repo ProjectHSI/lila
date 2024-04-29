@@ -1,11 +1,10 @@
-package views.html.challenge
+package views.challenge
 
 import lila.app.templating.Environment.{ *, given }
 
 import lila.challenge.Challenge
 import lila.challenge.Challenge.Status
 import lila.core.user.WithPerf
-import lila.rating.GlickoExt.display
 
 object theirs:
 
@@ -15,7 +14,7 @@ object theirs:
       user: Option[WithPerf],
       color: Option[chess.Color]
   )(using ctx: PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = bits.challengeTitle(c),
       openGraph = bits.challengeOpenGraph(c).some,
       pageModule = bits.jsModule(c, json, owner = false, color).some,

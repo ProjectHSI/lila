@@ -1,4 +1,4 @@
-package views.html.simul
+package views.simul
 
 import play.api.data.Form
 
@@ -11,10 +11,10 @@ import lila.simul.{ Simul, SimulForm }
 object form:
 
   def create(form: Form[SimulForm.Setup], teams: List[LightTeam])(using PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = trans.site.hostANewSimul.txt(),
       moreCss = cssTag("simul.form"),
-      modules = jsModule("bits.flatpickr")
+      modules = EsmInit("bits.flatpickr")
     ) {
       main(cls := "box box-pad page-small simul-form")(
         h1(cls := "box__top")(trans.site.hostANewSimul()),
@@ -33,10 +33,10 @@ object form:
     }
 
   def edit(form: Form[SimulForm.Setup], teams: List[LightTeam], simul: Simul)(using PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = s"Edit ${simul.fullName}",
       moreCss = cssTag("simul.form"),
-      modules = jsModule("bits.flatpickr")
+      modules = EsmInit("bits.flatpickr")
     ) {
       main(cls := "box box-pad page-small simul-form")(
         h1(cls := "box__top")("Edit ", simul.fullName),
@@ -73,7 +73,7 @@ object form:
         form3.group(form("variant"), trans.site.simulVariantsHint()) { f =>
           frag(
             div(cls := "variants")(
-              views.html.setup.filter.renderCheckboxes(
+              views.setup.filter.renderCheckboxes(
                 form,
                 "variants",
                 translatedVariantChoicesWithVariantsById,

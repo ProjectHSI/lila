@@ -1,4 +1,4 @@
-package views.html.board
+package views.board
 
 import chess.variant.{ Crazyhouse, FromPosition, Variant }
 
@@ -16,7 +16,7 @@ object userAnalysis:
       withForecast: Boolean = false,
       inlinePgn: Option[String] = None
   )(using ctx: PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = trans.site.analysis.txt(),
       moreCss = frag(
         cssTag("analyse.free"),
@@ -25,7 +25,7 @@ object userAnalysis:
         ctx.blind.option(cssTag("round.nvui"))
       ),
       modules = analyseNvuiTag,
-      pageModule = views.html.analyse.bits
+      pageModule = views.analyse.bits
         .analyseModule(
           "userAnalysis",
           Json
@@ -35,17 +35,15 @@ object userAnalysis:
               "wiki" -> pov.game.variant.standard
             )
             .add("inlinePgn", inlinePgn) ++
-            views.html.board.bits.explorerAndCevalConfig
+            views.board.bits.explorerAndCevalConfig
         )
         .some,
       csp = analysisCsp.withExternalAnalysisApis.some,
-      openGraph = lila.web
-        .OpenGraph(
-          title = "Chess analysis board",
-          url = s"$netBaseUrl${routes.UserAnalysis.index.url}",
-          description = "Analyse chess positions and variations on an interactive chess board"
-        )
-        .some,
+      openGraph = OpenGraph(
+        title = "Chess analysis board",
+        url = s"$netBaseUrl${routes.UserAnalysis.index.url}",
+        description = "Analyse chess positions and variations on an interactive chess board"
+      ).some,
       zoomable = true
     ):
       main(

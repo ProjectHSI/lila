@@ -1,5 +1,4 @@
-package views.html
-package userTournament
+package views.userTournament
 
 import lila.app.templating.Environment.{ *, given }
 
@@ -14,7 +13,7 @@ object created:
       u = u,
       title = s"${u.username} created tournaments",
       path = path,
-      modules = infiniteScrollTag
+      modules = infiniteScrollEsmInit
     ):
       if pager.nbResults == 0 then div(cls := "box-pad")(trans.site.nothingToSeeHere())
       else
@@ -31,8 +30,8 @@ object created:
             tbody(cls := "infinite-scroll")(
               pager.currentPageResults.map { t =>
                 tr(cls := "paginated")(
-                  td(cls := "icon")(iconTag(views.html.tournament.ui.tournamentIcon(t))),
-                  views.html.tournament.finishedList.header(t),
+                  td(cls := "icon")(iconTag(views.tournament.ui.tournamentIcon(t))),
+                  views.tournament.ui.finishedList.header(t),
                   td(momentFromNow(t.startsAt)),
                   td(cls := "winner")(
                     t.winnerId.isDefined.option(userIdLink(t.winnerId, withOnline = false))

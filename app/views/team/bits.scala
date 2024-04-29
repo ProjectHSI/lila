@@ -1,95 +1,45 @@
-package views.html.team
+package views.team
+
+import play.api.data.Form
+import scalalib.paginator.Paginator
 
 import lila.app.templating.Environment.{ *, given }
-
-import lila.common.{ Markdown, MarkdownRender }
 import lila.team.Team
 
-object bits:
+private lazy val bits = lila.team.ui.TeamUi(helpers)(using env.executor)
+export bits.{ list, membersPage }
+lazy val form    = lila.team.ui.FormUi(helpers, bits)(views.base.captcha.apply)
+lazy val request = lila.team.ui.RequestUi(helpers, bits)
 
-  import trans.team.*
+object admin:
+  private lazy val adminUi = lila.team.ui.AdminUi(helpers, bits)
+  export adminUi.{ leaders, kick }
 
-  def menu(currentTab: Option[String])(using ctx: PageContext) =
-    val tab = ~currentTab
-    st.nav(cls := "page-menu__menu subnav")(
-      (ctx.teamNbRequests > 0).option(
-        a(cls := tab.active("requests"), href := routes.Team.requests)(
-          xJoinRequests.pluralSame(ctx.teamNbRequests)
-        )
-      ),
-      ctx.isAuth.option(
-        a(cls := tab.active("mine"), href := routes.Team.mine)(
-          myTeams()
-        )
-      ),
-      ctx.isAuth.option(
-        a(cls := tab.active("leader"), href := routes.Team.leader)(
-          leaderTeams()
-        )
-      ),
-      a(cls := tab.active("all"), href := routes.Team.all())(
-        allTeams()
-      ),
-      ctx.isAuth.option(
-        a(cls := tab.active("form"), href := routes.Team.form)(
-          newTeam()
-        )
+  def pmAll(
+      t: Team,
+      form: Form[?],
+      tours: List[lila.tournament.Tournament],
+      unsubs: Int,
+      limiter: (Int, Instant)
+  )(using PageContext) =
+    val toursFrag = tours.nonEmpty.option:
+      div(cls := "tournaments")(
+        p(trans.team.youWayWantToLinkOneOfTheseTournaments()),
+        p:
+          ul:
+            tours.map: t =>
+              li(
+                views.tournament.ui.tournamentLink(t),
+                " ",
+                momentFromNow(t.startsAt),
+                " ",
+                a(
+                  dataIcon     := Icon.Forward,
+                  cls          := "text copy-url-button",
+                  data.copyurl := s"${netConfig.domain}${routes.Tournament.show(t.id).url}"
+                )
+              )
+        ,
+        br
       )
-    )
-
-  private[team] object markdown:
-    private val renderer = MarkdownRender(header = true, list = true, table = true)
-    private val cache = lila.memo.CacheApi
-      .scaffeineNoScheduler(using env.executor)
-      .expireAfterAccess(10 minutes)
-      .maximumSize(1024)
-      .build[Markdown, Html]()
-    def apply(team: Team, text: Markdown): Frag = rawHtml(cache.get(text, renderer(s"team:${team.id}")))
-
-  private[team] def teamTr(t: Team.WithMyLeadership)(using ctx: Context) =
-    val isMine = isMyTeamSync(t.id)
-    tr(cls := "paginated")(
-      td(cls := "subject")(
-        a(
-          dataIcon := Icon.Group,
-          cls := List(
-            "team-name text" -> true,
-            "mine"           -> isMine
-          ),
-          href := routes.Team.show(t.id)
-        )(
-          t.name,
-          t.flair.map(teamFlair),
-          t.amLeader.option(em("leader"))
-        ),
-        ~t.intro: String
-      ),
-      td(cls := "info")(
-        p(nbMembers.plural(t.nbMembers, t.nbMembers.localize)),
-        isMine.option(
-          form(action := routes.Team.quit(t.id), method := "post")(
-            submitButton(cls := "button button-empty button-red button-thin confirm team__quit")(
-              quitTeam.txt()
-            )
-          )
-        )
-      )
-    )
-
-  private[team] def layout(
-      title: String,
-      openGraph: Option[lila.web.OpenGraph] = None,
-      pageModule: Option[PageModule] = None,
-      moreJs: Frag = emptyFrag,
-      modules: EsmList = Nil,
-      robots: Boolean = netConfig.crawlable
-  )(body: Frag)(using PageContext) =
-    views.html.base.layout(
-      title = title,
-      moreCss = cssTag("team"),
-      modules = infiniteScrollTag ++ modules,
-      moreJs = moreJs,
-      pageModule = pageModule,
-      openGraph = openGraph,
-      robots = robots
-    )(body)
+    adminUi.pmAll(t, form, toursFrag, unsubs, limiter, lila.app.mashup.TeamInfo.pmAllCredits)

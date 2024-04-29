@@ -3,7 +3,6 @@ package controllers
 import chess.format.Fen
 import play.api.libs.json.Json
 import play.api.mvc.{ Request, Result, EssentialAction }
-import views.*
 
 import lila.app.{ *, given }
 import lila.core.net.IpAddress
@@ -21,7 +20,7 @@ final class Setup(
     challengeC: => Challenge,
     apiC: => Api
 ) extends LilaController(env)
-    with TheftPrevention:
+    with lila.web.TheftPrevention:
 
   private def forms     = env.setup.forms
   private def processor = env.setup.processor
@@ -232,12 +231,12 @@ final class Setup(
               case None      => BadRequest(jsonError("Authentication required"))
 
   def filterForm = Open:
-    Ok.page(html.setup.filter(forms.filter))
+    Ok.page(views.setup.filter(forms.filter))
 
   def validateFen = Open:
     (get("fen").map(Fen.Full.clean): Option[Fen.Full]).flatMap(ValidFen(getBool("strict"))) match
       case None    => BadRequest
-      case Some(v) => Ok.page(html.board.bits.miniSpan(v.fen.board, v.color))
+      case Some(v) => Ok.page(views.board.bits.miniSpan(v.fen.board, v.color))
 
   def apiAi = ScopedBody(_.Challenge.Write, _.Bot.Play, _.Board.Play, _.Web.Mobile) { ctx ?=> me ?=>
     BotAiRateLimit(me, rateLimited, cost = me.isBot.so(1)):

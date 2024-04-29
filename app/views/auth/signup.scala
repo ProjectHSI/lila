@@ -1,22 +1,20 @@
-package views.html
-package auth
+package views.auth
 
 import lila.app.templating.Environment.{ *, given }
 
 import lila.common.HTTPRequest
 import lila.security.PasswordCheck
-import lila.web.LangPath
 
 object signup:
 
   def apply(form: lila.core.security.HcaptchaForm[?])(using ctx: PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = trans.site.signUp.txt(),
       modules = jsModuleInit("bits.login", "signup"),
       moreJs = frag(lila.web.views.hcaptcha.script(form), fingerprintTag),
       moreCss = cssTag("auth"),
       csp = defaultCsp.withHcaptcha.some,
-      withHrefLangs = LangPath(routes.Auth.signup).some
+      withHrefLangs = lila.ui.LangPath(routes.Auth.signup).some
     ) {
       main(cls := "auth auth-signup box box-pad")(
         h1(cls := "box__top")(trans.site.signUp()),
@@ -30,7 +28,7 @@ object signup:
             (url, ref) => addQueryParam(url, "referrer", ref)
           }
         )(
-          auth.bits.formFields(form("username"), form("password"), form("email").some, register = true),
+          bits.formFields(form("username"), form("password"), form("email").some, register = true),
           globalErrorNamed(form.form, PasswordCheck.errorSame),
           input(id := "signup-fp-input", name := "fp", tpe := "hidden"),
           div(cls := "form-group text", dataIcon := Icon.InfoCircle)(

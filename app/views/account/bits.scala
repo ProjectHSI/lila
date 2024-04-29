@@ -1,5 +1,4 @@
-package views.html
-package account
+package views.account
 
 import lila.app.templating.Environment.{ *, given }
 
@@ -12,11 +11,11 @@ def layout(
     evenMoreJs: Frag = emptyFrag,
     modules: EsmList = Nil
 )(body: Frag)(using ctx: PageContext): Frag =
-  views.html.base.layout(
+  views.base.layout(
     title = title,
     moreCss = frag(cssTag("account"), evenMoreCss),
     moreJs = evenMoreJs,
-    modules = jsModule("bits.account") ++ modules
+    modules = EsmInit("bits.account") ++ modules
   ):
     main(cls := "account page-menu")(
       bits.menu(active),

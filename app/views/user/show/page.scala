@@ -1,4 +1,5 @@
-package views.html.user.show
+package views.user
+package show
 
 import play.api.data.Form
 
@@ -10,10 +11,11 @@ import lila.game.{ Game, GameFilter }
 import lila.core.data.SafeJsonStr
 import lila.rating.UserWithPerfs.titleUsernameWithBestRating
 
+lazy val ui = lila.user.ui.UserShow(helpers, bits)
+
 object page:
 
-  lazy val ui   = lila.user.ui.userShow(helpers)
-  lazy val side = lila.user.ui.userShowSide(helpers)
+  lazy val side = lila.user.ui.UserShowSide(helpers)
 
   def activity(
       activities: Vector[lila.activity.ActivityView],
@@ -21,17 +23,15 @@ object page:
       social: UserInfo.Social
   )(using PageContext) =
     val u = info.user
-    views.html.base.layout(
+    views.base.layout(
       title = s"${u.username} : ${trans.activity.activity.txt()}",
-      openGraph = lila.web
-        .OpenGraph(
-          image = assetUrl("logo/lichess-tile-wide.png").some,
-          twitterImage = assetUrl("logo/lichess-tile.png").some,
-          title = u.titleUsernameWithBestRating,
-          url = s"$netBaseUrl${routes.User.show(u.username).url}",
-          description = ui.describeUser(u)
-        )
-        .some,
+      openGraph = OpenGraph(
+        image = assetUrl("logo/lichess-tile-wide.png").some,
+        twitterImage = assetUrl("logo/lichess-tile.png").some,
+        title = u.titleUsernameWithBestRating,
+        url = s"$netBaseUrl${routes.User.show(u.username).url}",
+        description = ui.describeUser(u)
+      ).some,
       pageModule = pageModule(info),
       modules = esModules(info),
       moreCss = frag(
@@ -43,8 +43,8 @@ object page:
       main(cls := "page-menu", ui.dataUsername := u.username)(
         st.aside(cls := "page-menu__menu")(side(u, info.ranks, none)),
         div(cls := "page-menu__content box user-show")(
-          views.html.user.show.header(u, info, UserInfo.Angle.Activity, social),
-          div(cls := "angle-content")(views.html.activity(u, activities))
+          views.user.show.header(u, info, UserInfo.Angle.Activity, social),
+          div(cls := "angle-content")(views.activity(u, activities))
         )
       )
 
@@ -59,7 +59,7 @@ object page:
     val u          = info.user
     val filterName = userGameFilterTitleNoTag(u, info.nbs, filters.current)
     val pageName   = (games.currentPage > 1).so(s" - page ${games.currentPage}")
-    views.html.base.layout(
+    views.base.layout(
       title = s"${u.username} $filterName$pageName",
       pageModule = pageModule(info),
       modules = esModules(info, filters.current.name == "search"),
@@ -73,24 +73,24 @@ object page:
       main(cls := "page-menu", ui.dataUsername := u.username)(
         st.aside(cls := "page-menu__menu")(side(u, info.ranks, none)),
         div(cls := "page-menu__content box user-show")(
-          views.html.user.show.header(u, info, UserInfo.Angle.Games(searchForm), social),
+          views.user.show.header(u, info, UserInfo.Angle.Games(searchForm), social),
           div(cls := "angle-content")(gamesContent(u, info.nbs, games, filters, filters.current.name, notes))
         )
       )
 
   private def esModules(info: UserInfo, withSearch: Boolean = false)(using PageContext): EsmList =
     import play.api.libs.json.Json
-    infiniteScrollTag
+    infiniteScrollEsmInit
       ++ jsModuleInit("bits.user", Json.obj("i18n" -> i18nJsObject(ui.i18nKeys)))
-      ++ withSearch.so(jsModule("bits.gameSearch"))
-      ++ isGranted(_.UserModView).so(jsModule("mod.user"))
+      ++ withSearch.so(EsmInit("bits.gameSearch"))
+      ++ isGranted(_.UserModView).so(EsmInit("mod.user"))
 
   private def pageModule(info: UserInfo)(using PageContext) =
     info.ratingChart.map: rc =>
       PageModule("chart.ratingHistory", SafeJsonStr(s"""{"data":$rc}"""))
 
   def disabled(u: User)(using PageContext) =
-    views.html.base.layout(title = u.username, robots = false):
+    views.base.layout(title = u.username, robots = false):
       main(cls := "box box-pad")(
         h1(cls := "box__top")(u.username),
         p(trans.settings.thisAccountIsClosed())

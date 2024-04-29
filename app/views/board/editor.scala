@@ -1,4 +1,4 @@
-package views.html.board
+package views.board
 
 import chess.format.Fen
 
@@ -15,7 +15,7 @@ object editor:
       positionsJson: JsArray,
       endgamePositionsJson: JsArray
   )(using PageContext) =
-    views.html.base.layout(
+    views.base.layout(
       title = trans.site.boardEditor.txt(),
       pageModule = PageModule(
         "editor",
@@ -23,13 +23,11 @@ object editor:
       ).some,
       moreCss = cssTag("editor"),
       zoomable = true,
-      openGraph = lila.web
-        .OpenGraph(
-          title = "Chess board editor",
-          url = s"$netBaseUrl${routes.Editor.index.url}",
-          description = "Load opening positions or create your own chess position on a chess board editor"
-        )
-        .some
+      openGraph = OpenGraph(
+        title = "Chess board editor",
+        url = s"$netBaseUrl${routes.Editor.index.url}",
+        description = "Load opening positions or create your own chess position on a chess board editor"
+      ).some
     ):
       main(id := "board-editor")(
         div(cls := "board-editor")(

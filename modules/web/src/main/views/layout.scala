@@ -5,18 +5,18 @@ import play.api.i18n.Lang
 
 import lila.ui.*
 import ScalatagsTemplate.{ *, given }
-import lila.common.String.html.safeJsonValue
 import lila.core.i18n.Language
 import lila.core.report.ScoreThresholds
-import lila.web.ui.EsmList
 
 final class layout(helpers: Helpers, assetHelper: lila.web.ui.AssetFullHelper)(
     jsQuantity: Lang => String,
     isRTL: Lang => Boolean,
-    popularAlternateLanguages: List[Language]
+    popularAlternateLanguages: List[Language],
+    reportScoreThreshold: () => ScoreThresholds,
+    reportScore: () => Int
 ):
   import helpers.{ *, given }
-  import assetHelper.*
+  import assetHelper.{ defaultCsp, netConfig, cashTag, jsName, siteName }
 
   val doctype                                 = raw("<!DOCTYPE html>")
   def htmlTag(using lang: Lang, ctx: Context) = html(st.lang := lang.code, dir := isRTL(lang).option("rtl"))
@@ -28,7 +28,7 @@ final class layout(helpers: Helpers, assetHelper: lila.web.ui.AssetFullHelper)(
     s"""<meta http-equiv="Content-Security-Policy" content="$csp">"""
   def metaCsp(csp: Option[ContentSecurityPolicy])(using Context, Option[Nonce]): Frag =
     metaCsp(csp.getOrElse(defaultCsp))
-  def systemThemeEmbedScript =
+  val systemThemeEmbedScript = raw:
     "<script>if (window.matchMedia('(prefers-color-scheme: light)')?.matches) " +
       "document.documentElement.classList.add('light');</script>"
   def pieceSprite(name: String): Frag =
@@ -156,11 +156,14 @@ final class layout(helpers: Helpers, assetHelper: lila.web.ui.AssetFullHelper)(
       jsTag("manifest"),
       cashTag,
       keys.map(jsTag),
-      manifest.deps(keys).map(jsTag)
+      assetHelper.manifest.deps(keys).map(jsTag)
     )
 
-  def modulesInit(modules: EsmList)(using Context) =
-    modules.flatMap(_.map(_.init)) // in body
+  private def jsTag(key: String): Frag =
+    script(tpe := "module", src := staticAssetUrl(s"compiled/${jsName(key)}"))
+
+  def modulesInit(modules: EsmList)(using ctx: PageContext) =
+    modules.flatMap(_.map(_.init(ctx.nonce))) // in body
 
   private def hrefLang(langStr: String, path: String) =
     s"""<link rel="alternate" hreflang="$langStr" href="$netBaseUrl$path"/>"""
@@ -238,17 +241,19 @@ final class layout(helpers: Helpers, assetHelper: lila.web.ui.AssetFullHelper)(
 <label for="tn-tg" class="fullscreen-mask"></label>
 <label for="tn-tg" class="hbg"><span class="hbg__in"></span></label>"""
 
-    private def reports(threshold: ScoreThresholds, reportScore: Int)(using Context) =
+    private def reports(using Context) =
       if Granter.opt(_.SeeReport) then
+        val threshold = reportScoreThreshold()
+        val maxScore  = reportScore()
         a(
           cls := List(
-            "link data-count report-score link-center" -> true,
-            "report-score--high"                       -> (reportScore > threshold.high),
-            "report-score--low"                        -> (reportScore <= threshold.mid)
+            "link data-count report-maxScore link-center" -> true,
+            "report-maxScore--high"                       -> (maxScore > threshold.high),
+            "report-maxScore--low"                        -> (maxScore <= threshold.mid)
           ),
           title     := "Moderation",
           href      := routes.Report.list,
-          dataCount := reportScore,
+          dataCount := maxScore,
           dataIcon  := Icon.Agent
         ).some
       else
@@ -280,14 +285,11 @@ final class layout(helpers: Helpers, assetHelper: lila.web.ui.AssetFullHelper)(
     def apply(
         zenable: Boolean,
         isAppealUser: Boolean,
-        teamNbRequests: Int,
-        reportScoreThreshold: ScoreThresholds,
-        reportScore: Int,
         challenges: Int,
         notifications: Int,
         error: Boolean,
         topnav: Frag
-    )(using ctx: Context) =
+    )(using ctx: PageContext) =
       header(id := "top")(
         div(cls := "site-title-nav")(
           (!isAppealUser).option(topnavToggle),
@@ -312,8 +314,8 @@ final class layout(helpers: Helpers, assetHelper: lila.web.ui.AssetFullHelper)(
         div(cls := "site-buttons")(
           warnNoAutoplay,
           (!isAppealUser).option(clinput),
-          reports(reportScoreThreshold, reportScore),
-          teamRequests(teamNbRequests),
+          reports,
+          teamRequests(ctx.teamNbRequests),
           if isAppealUser then
             postForm(action := routes.Auth.logout):
               submitButton(cls := "button button-red link")(trans.site.logOut())
@@ -326,7 +328,7 @@ final class layout(helpers: Helpers, assetHelper: lila.web.ui.AssetFullHelper)(
       )
 
   object inlineJs:
-    def apply(nonce: Nonce)(using Translate) = embedJsUnsafe(jsCode, nonce)
+    def apply(nonce: Nonce)(using Translate): Frag = embedJsUnsafe(jsCode)(nonce.some)
 
     private val i18nKeys = List(
       trans.site.pause,

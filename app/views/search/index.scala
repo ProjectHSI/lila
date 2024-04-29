@@ -1,4 +1,4 @@
-package views.html.search
+package views.search
 
 import play.api.data.Form
 
@@ -15,9 +15,9 @@ object index:
   ) =
     val commons = bits.of(form)
     import commons.*
-    views.html.base.layout(
+    views.base.layout(
       title = searchInXGames.txt(nbGames.localize, nbGames),
-      modules = jsModule("bits.gameSearch") ++ infiniteScrollTag,
+      modules = EsmInit("bits.gameSearch") ++ infiniteScrollEsmInit,
       moreCss = cssTag("search")
     ) {
       main(cls := "box page-small search")(
@@ -78,7 +78,7 @@ object index:
                   permalink
                 ),
                 div(cls := "search__rows infinite-scroll")(
-                  views.html.game.widgets(pager.currentPageResults),
+                  views.game.widgets(pager.currentPageResults),
                   pagerNext(pager, np => routes.Search.index(np).url)
                 )
               )
