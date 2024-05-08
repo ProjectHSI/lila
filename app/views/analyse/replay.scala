@@ -3,13 +3,12 @@ package views.analyse
 import chess.format.Fen
 import chess.format.pgn.PgnStr
 import chess.variant.Crazyhouse
-
 import play.api.i18n.Lang
 import play.api.libs.json.Json
 
 import lila.app.UiEnv.{ *, given }
-
-import bits.dataPanel
+import lila.common.Json.given
+import views.analyse.bits.dataPanel
 import lila.game.GameExt.analysable
 import lila.round.RoundGame.secondsSinceCreation
 
@@ -43,78 +42,46 @@ object replay:
         palantir = ctx.canPalantir
       )
     val imageLinks = frag(
-      a(
-        dataIcon := Icon.NodeBranching,
-        cls      := "text game-gif",
-        targetBlank,
-        href := cdnUrl(
-          routes.Export.gif(pov.gameId, pov.color.name, ctx.pref.theme.some, ctx.pref.pieceSet.some).url
-        )
-      )(trans.site.gameAsGIF()),
-      a(
-        dataIcon := Icon.NodeBranching,
-        cls      := "text position-gif",
-        targetBlank,
-        href := cdnUrl(
+      copyMeLink(
+        cdnUrl(
+          routes.Export.gif(pov.gameId, pov.color, ctx.pref.theme.some, ctx.pref.pieceSet.some).url
+        ),
+        trans.site.gameAsGIF()
+      )(cls := "game-gif"),
+      copyMeLink(
+        cdnUrl(
           routes.Export
             .fenThumbnail(
               Fen.write(pov.game.situation).value,
-              pov.color.name,
+              pov.color,
               None,
               pov.game.variant.key.some,
               ctx.pref.theme.some,
               ctx.pref.pieceSet.some
             )
             .url
-        )
-      )(trans.site.screenshotCurrentPosition())
+        ),
+        trans.site.screenshotCurrentPosition()
+      )(cls := "position-gif")
     )
+
     val shareLinks = frag(
       a(dataIcon := Icon.Expand, cls := "text embed-howto")(trans.site.embedInYourWebsite()),
-      div(
-        input(
-          id         := "game-url",
-          cls        := "copyable autoselect",
-          spellcheck := "false",
-          readonly,
-          value := s"${netBaseUrl}${routes.Round.watcher(pov.gameId, pov.color.name)}"
-        ),
-        button(
-          title    := "Copy URL",
-          cls      := "copy button",
-          dataRel  := "game-url",
-          dataIcon := Icon.Link
-        )
-      )
+      copyMeInput(s"${netBaseUrl}${routes.Round.watcher(pov.gameId, pov.color)}")
     )
     val pgnLinks = frag(
-      a(
-        dataIcon := Icon.Download,
-        cls      := "text",
-        href     := s"${routes.Game.exportOne(game.id)}?literate=1",
-        downloadAttr
-      )(trans.site.downloadAnnotated()),
-      a(
-        dataIcon := Icon.Download,
-        cls      := "text",
-        href     := s"${routes.Game.exportOne(game.id)}?evals=0&clocks=0",
-        downloadAttr
-      )(trans.site.downloadRaw()),
-      game.isPgnImport.option(
-        a(
-          dataIcon := Icon.Download,
-          cls      := "text",
-          href     := s"${routes.Game.exportOne(game.id)}?imported=1",
-          downloadAttr
-        )(trans.site.downloadImported())
-      )
+      copyMeLink(s"${routes.Game.exportOne(game.id)}?literate=1", trans.site.downloadAnnotated()),
+      copyMeLink(s"${routes.Game.exportOne(game.id)}?evals=0&clocks=0", trans.site.downloadRaw()),
+      game.isPgnImport.option:
+        copyMeLink(s"${routes.Game.exportOne(game.id)}?imported=1", trans.site.downloadImported())
     )
 
     bits
       .page(ui.titleOf(pov))
-      .cssTag("analyse.round")
-      .cssTag((pov.game.variant == Crazyhouse).option("analyse.zh"))
-      .cssTag(ctx.blind.option("round.nvui"))
+      .css("analyse.round")
+      .css((pov.game.variant == Crazyhouse).option("analyse.zh"))
+      .css(ctx.blind.option("round.nvui"))
+      .css(ctx.pref.hasKeyboardMove.option("keyboardMove"))
       .js(analyseNvuiTag)
       .js(
         bits.analyseModule(
@@ -127,7 +94,7 @@ object replay:
               "chat"   -> chatJson
             )
             .add("hunter" -> isGranted(_.ViewBlurs)) ++
-            views.board.bits.explorerAndCevalConfig
+            views.board.explorerAndCevalConfig
         )
       )
       .graph(views.round.ui.povOpenGraph(pov)):
@@ -195,11 +162,7 @@ object replay:
                     div(cls := "fen-pgn")(
                       div(
                         strong("FEN"),
-                        input(
-                          readonly,
-                          spellcheck := false,
-                          cls        := "copyable autoselect like-text analyse__underboard__fen"
-                        )
+                        copyMeInput("")(cls := "analyse__underboard__fen")
                       ),
                       ctx.noBlind.option(
                         div(

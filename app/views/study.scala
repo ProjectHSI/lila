@@ -4,7 +4,7 @@ import play.api.libs.json.Json
 import chess.format.pgn.PgnStr
 
 import lila.app.UiEnv.{ *, given }
-import lila.core.study.IdName
+import lila.core.study.{ IdName, Order }
 import lila.core.socket.SocketVersion
 import lila.common.Json.given
 
@@ -13,9 +13,9 @@ lazy val ui   = lila.study.ui.StudyUi(helpers, bits)
 lazy val list = lila.study.ui.ListUi(helpers, bits)
 
 def staffPicks(p: lila.cms.CmsPage.Render)(using Context) =
-  Page(p.title).cssTag("study.index", "page"):
+  Page(p.title).css("study.index", "page"):
     main(cls := "page-menu")(
-      list.menu("staffPicks", lila.study.Order.Mine, Nil),
+      list.menu("staffPicks", Order.mine, Nil),
       main(cls := "page-menu__content box box-pad page"):
         views.site.page.pageContent(p)
     )
@@ -45,7 +45,7 @@ def create(
       icon = Some(Icon.StudyBoard),
       back = backUrl
     )
-    .cssTag("study.create")(ui.create(data, owner, contrib, backUrl))
+    .css("study.create")(ui.create(data, owner, contrib, backUrl))
 
 def show(
     s: lila.study.Study,
@@ -55,7 +55,8 @@ def show(
     streamers: List[UserId]
 )(using ctx: Context) =
   Page(s.name.value)
-    .cssTag("analyse.study")
+    .css("analyse.study")
+    .css(ctx.pref.hasKeyboardMove.option("keyboardMove"))
     .js(analyseNvuiTag)
     .js(
       PageModule(
@@ -82,7 +83,7 @@ def show(
             ),
           "socketUrl"     -> socketUrl(s.id),
           "socketVersion" -> socketVersion
-        ) ++ views.board.bits.explorerAndCevalConfig
+        ) ++ views.board.explorerAndCevalConfig
       )
     )
     .robots(s.isPublic)
@@ -99,6 +100,20 @@ def show(
       )
 
 def socketUrl(id: StudyId) = s"/study/$id/socket/v$apiVersion"
+
+def privateStudy(study: lila.study.Study)(using Context) =
+  views.site.message(
+    title = s"${titleNameOrId(study.ownerId)}'s study",
+    back = routes.Study.allDefault().url.some
+  ):
+    frag(
+      "Sorry! This study is private, you cannot access it.",
+      isGranted(_.StudyAdmin).option(
+        postForm(action := routes.Study.admin(study.id))(
+          submitButton("View as admin")(cls := "button button-red")
+        )
+      )
+    )
 
 object embed:
 

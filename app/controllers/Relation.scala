@@ -36,17 +36,11 @@ final class Relation(env: Env, apiC: => Api) extends LilaController(env):
     )
   yield res
 
-  private val FollowLimitPerUser = lila.memo.RateLimit[UserId](
-    credits = 150,
-    duration = 72.hour,
-    key = "follow.user"
-  )
-
   private def RatelimitWith(
       str: UserStr
   )(f: LightUser => Fu[Result])(using me: Me)(using Context): Fu[Result] =
     Found(env.user.lightUserApi.async(str.id)): user =>
-      FollowLimitPerUser(me, rateLimited):
+      limit.follow(me, rateLimited):
         f(user)
 
   def follow(username: UserStr) = AuthOrScoped(_.Follow.Write, _.Web.Mobile) { ctx ?=> me ?=>
@@ -89,7 +83,7 @@ final class Relation(env: Env, apiC: => Api) extends LilaController(env):
         RelatedPager(api.followingPaginatorAdapter(user.id), page).flatMap: pag =>
           negotiate(
             if ctx.is(user) || isGrantedOpt(_.CloseAccount)
-            then Ok.page(views.relation.bits.friends(user, pag))
+            then Ok.page(views.relation.friends(user, pag))
             else Found(ctx.me)(me => Redirect(routes.Relation.following(me.username))),
             Ok(jsonRelatedPaginator(pag))
           )
@@ -125,7 +119,7 @@ final class Relation(env: Env, apiC: => Api) extends LilaController(env):
     Reasonable(page, Max(20)):
       Ok.async:
         RelatedPager(api.blockingPaginatorAdapter(me), page).map {
-          views.relation.bits.blocks(me, _)
+          views.relation.blocks(me, _)
         }
   }
 

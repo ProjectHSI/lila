@@ -184,7 +184,7 @@ final private class RelaySync(
         studyId = study.id,
         chapterId = chapter.id,
         userId = study.ownerId,
-        unlimited = true
+        official = true
       )
   yield
     preview.invalidate(study.id)
@@ -214,7 +214,7 @@ final private class RelaySync(
       setup = Chapter.Setup(
         none,
         game.variant,
-        chess.Color.White
+        Color.White
       ),
       root = game.root,
       tags = game.tags,

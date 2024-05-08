@@ -18,7 +18,7 @@ object queue:
       streamers: Int,
       nbAppeals: Int
   )(using Context) =
-    views.report.list.layout("appeal", scores, streamers, nbAppeals)(
+    views.report.layout("appeal", scores, streamers, nbAppeals):
       table(cls := "slist slist-pad see appeal-queue")(
         thead(
           tr(
@@ -51,7 +51,7 @@ object queue:
                   p(shorten(msg.text, 200))
                 )),
               td(
-                a(href := routes.Appeal.show(appeal.id), cls := "button button-empty")("View"),
+                a(href := routes.Appeal.show(appeal.userId), cls := "button button-empty")("View"),
                 inquiries.get(appeal.userId).map { i =>
                   frag(userIdLink(i.mod.some), nbsp, "is handling this")
                 }
@@ -60,7 +60,6 @@ object queue:
           }
         )
       )
-    )
 
   private def filterMarks(current: Option[Filter]) =
     span(cls := "appeal-filters btn-rack"):

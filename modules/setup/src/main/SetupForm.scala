@@ -90,7 +90,7 @@ object SetupForm:
         increment = i | Clock.IncrementSeconds(5),
         days = d | Days(7),
         mode = chess.Mode(~r),
-        color = lila.lobby.Color.orDefault(c),
+        color = lila.lobby.TriColor.orDefault(c),
         ratingRange = g.fold(RatingRange.default)(RatingRange.orDefault)
       )
     )(_ => none)
@@ -105,6 +105,8 @@ object SetupForm:
             lila.core.game.isBoardCompatible
           ) || hook.makeDaysPerTurn.isDefined
       )
+
+  def toFriend = Form(single("username" -> lila.common.Form.username.historicalField))
 
   object api extends lila.core.setup.SetupForm:
 

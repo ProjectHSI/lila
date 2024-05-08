@@ -1,11 +1,13 @@
 package lila.game
 package ui
 
+import chess.format.Fen
+import chess.format.pgn.PgnStr
+
 import lila.ui.*
 import ScalatagsTemplate.{ *, given }
 import lila.core.game.Game
 import lila.game.GameExt.*
-import chess.format.Fen
 
 final class GameUi(helpers: Helpers):
   import helpers.{ *, given }
@@ -28,7 +30,7 @@ final class GameUi(helpers: Helpers):
 
     def noCtx(pov: Pov, tv: Boolean = false, channelKey: Option[String] = None): Tag =
       val link = if tv then channelKey.fold(routes.Tv.index) { routes.Tv.onChannel }
-      else routes.Round.watcher(pov.gameId, pov.color.name)
+      else routes.Round.watcher(pov.gameId, pov.color)
       renderMini(pov, link.url.some)(using transDefault, None)
 
     def renderState(pov: Pov)(using me: Option[Me]) =
@@ -73,7 +75,7 @@ final class GameUi(helpers: Helpers):
         pov.game.winnerColor.fold("½"): c =>
           if c == pov.color then "1" else "0"
 
-    private def renderClock(clock: chess.Clock, color: chess.Color) =
+    private def renderClock(clock: chess.Clock, color: Color) =
       val s = clock.remainingTime(color).roundSeconds
       span(
         cls      := s"mini-game__clock mini-game__clock--${color.name}",
@@ -160,7 +162,7 @@ final class GameUi(helpers: Helpers):
                 case Some(w) if w == u.id => "glpt win"  -> "1"
                 case None                 => "glpt"      -> "½"
                 case _                    => "glpt loss" -> "0"
-              a(href := s"""${routes.Round.watcher(r.gameId, "white")}?pov=${u.id}""", cls := linkClass)(
+              a(href := s"""${routes.Round.watcher(r.gameId, Color.white)}?pov=${u.id}""", cls := linkClass)(
                 text
               )
         ,
@@ -179,3 +181,52 @@ final class GameUi(helpers: Helpers):
           ct.users.toList.map: u =>
             span(cls := ct.users.winnerId.map(w => if w == u.id then "win" else "loss"))(ct.showScore(u.id))
       )
+
+  object importer:
+
+    private def analyseHelp(using ctx: Context) =
+      (!ctx.isAuth).option:
+        a(cls := "blue", href := routes.Auth.signup)(trans.site.youNeedAnAccountToDoThat())
+
+    def apply(form: play.api.data.Form[?])(using ctx: Context) =
+      Page(trans.site.importGame.txt())
+        .css("importer")
+        .iife(iifeModule("javascripts/importer.js"))
+        .graph(
+          title = "Paste PGN chess game",
+          url = s"$netBaseUrl${routes.Importer.importGame.url}",
+          description = trans.site.importGameExplanation.txt()
+        ):
+          main(cls := "importer page-small box box-pad")(
+            h1(cls := "box__top")(trans.site.importGame()),
+            p(cls := "explanation")(
+              trans.site.importGameExplanation(),
+              br,
+              a(cls := "text", dataIcon := Icon.InfoCircle, href := routes.Study.allDefault()):
+                trans.site.importGameCaveat()
+            ),
+            standardFlash,
+            postForm(cls := "form3 import", action := routes.Importer.sendGame)(
+              form3.group(form("pgn"), trans.site.pasteThePgnStringHere())(form3.textarea(_)()),
+              form("pgn").value.flatMap { pgn =>
+                lila.game.importer
+                  .parseImport(PgnStr(pgn), ctx.userId)
+                  .fold(
+                    err => frag(pre(cls := "error")(err), br, br).some,
+                    _ => none
+                  )
+              },
+              form3.group(form("pgnFile"), trans.site.orUploadPgnFile(), klass = "upload"): f =>
+                form3.file.pgn(f.name),
+              form3.checkbox(
+                form("analyse"),
+                trans.site.requestAComputerAnalysis(),
+                help = Some(analyseHelp),
+                disabled = !ctx.isAuth
+              ),
+              a(cls := "text", dataIcon := Icon.InfoCircle, href := routes.Study.allDefault(1)):
+                trans.site.importGameDataPrivacyWarning()
+              ,
+              form3.action(form3.submit(trans.site.importGame(), Icon.UploadCloud.some))
+            )
+          )

@@ -1,13 +1,62 @@
 package lila.analyse
 package ui
 
+import play.api.libs.json.*
+import chess.variant.*
+
 import lila.ui.*
 import ScalatagsTemplate.{ *, given }
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
 
 final class AnalyseUi(helpers: Helpers)(externalEngineEndpoint: String):
   import helpers.{ *, given }
+
+  def userAnalysis(
+      data: JsObject,
+      pov: Pov,
+      withForecast: Boolean = false
+  )(using ctx: Context) =
+    Page(trans.site.analysis.txt())
+      .css("analyse.free")
+      .css((pov.game.variant == Crazyhouse).option("analyse.zh"))
+      .css(withForecast.option("analyse.forecast"))
+      .css(ctx.blind.option("round.nvui"))
+      .css(ctx.pref.hasKeyboardMove.option("keyboardMove"))
+      .csp(csp.compose(_.withExternalAnalysisApis))
+      .graph(
+        title = "Chess analysis board",
+        url = s"$netBaseUrl${routes.UserAnalysis.index.url}",
+        description = "Analyse chess positions and variations on an interactive chess board"
+      )
+      .zoom:
+        main(
+          cls := List(
+            "analyse"       -> true,
+            "analyse--wiki" -> pov.game.variant.standard
+          )
+        )(
+          pov.game.synthetic.option(
+            st.aside(cls := "analyse__side")(
+              lila.ui.bits.mselect(
+                "analyse-variant",
+                span(cls := "text", dataIcon := iconByVariant(pov.game.variant))(pov.game.variant.name),
+                Variant.list.all.filter(FromPosition != _).map { v =>
+                  a(
+                    dataIcon := iconByVariant(v),
+                    cls      := (pov.game.variant == v).option("current"),
+                    href     := routes.UserAnalysis.parseArg(v.key.value)
+                  )(v.name)
+                }
+              ),
+              pov.game.variant.standard.option(div(cls := "analyse__wiki"))
+            )
+          ),
+          div(cls := "analyse__board main-board")(chessgroundBoard),
+          div(cls := "analyse__tools"),
+          div(cls := "analyse__controls")
+        )
+
+  private def iconByVariant(variant: Variant): Icon =
+    PerfKey.byVariant(variant).fold(Icon.CrownElite)(_.perfIcon)
 
   def csp: Update[ContentSecurityPolicy] =
     _.withWebAssembly.withExternalEngine(externalEngineEndpoint)
@@ -18,7 +67,7 @@ final class AnalyseUi(helpers: Helpers)(externalEngineEndpoint: String):
 
   object embed:
 
-    def lpvJs(orientation: Option[chess.Color], getPgn: Boolean)(using Translate): WithNonce[Frag] =
+    def lpvJs(orientation: Option[Color], getPgn: Boolean)(using Translate): WithNonce[Frag] =
       lpvJs(lpvConfig(orientation, getPgn))
 
     def lpvJs(lpvConfig: JsObject)(using Translate): WithNonce[Frag] =
@@ -28,7 +77,7 @@ final class AnalyseUi(helpers: Helpers)(externalEngineEndpoint: String):
           )
         )})})""")
 
-    def lpvConfig(orientation: Option[chess.Color], getPgn: Boolean) = Json
+    def lpvConfig(orientation: Option[Color], getPgn: Boolean) = Json
       .obj(
         "menu" -> Json.obj(
           "getPgn" -> Json.obj("enabled" -> getPgn)

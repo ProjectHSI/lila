@@ -1,11 +1,10 @@
 package controllers
 
+import scala.util.chaining.*
 import play.api.http.ContentTypes
 import play.api.libs.json.*
 import play.api.mvc.Result
-
 import scala.util.chaining.*
-
 import lila.app.{ *, given }
 import lila.common.Json.given
 
@@ -23,8 +22,8 @@ final class Tv(env: Env, apiC: => Api, gameC: => Game) extends LilaController(en
   private def serveChannel(chanKey: String)(using Context) =
     Channel.byKey.get(chanKey).so(lichessTv)
 
-  def sides(gameId: GameId, color: String) = Open:
-    Found(chess.Color.fromName(color).so { env.round.proxyRepo.pov(gameId, _) }): pov =>
+  def sides(gameId: GameId, color: Color) = Open:
+    Found(env.round.proxyRepo.pov(gameId, color)): pov =>
       env.game.crosstableApi.withMatchup(pov.game).flatMap { ct =>
         Ok.snip(views.tv.side.sides(pov, ct))
       }

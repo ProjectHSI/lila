@@ -1,4 +1,5 @@
 import * as cg from 'chessground/types';
+import { SanToUci } from 'chess';
 import { h } from 'snabbdom';
 import { onInsert } from 'common/snabbdom';
 import { promote } from 'chess/promotion';
@@ -8,6 +9,10 @@ import { load as loadKeyboardMove } from './keyboardMove';
 import KeyboardChecker from './keyboardChecker';
 
 export type KeyboardMoveHandler = (fen: cg.FEN, dests?: cg.Dests, yourMove?: boolean) => void;
+
+export const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'] as const;
+export type ArrowKey = (typeof arrowKeys)[number];
+export const isArrowKey = (v: string): v is ArrowKey => arrowKeys.includes(v as ArrowKey);
 
 export interface KeyboardMove {
   drop(key: cg.Key, piece: string): void;
@@ -20,7 +25,8 @@ export interface KeyboardMove {
   hasSelected(): cg.Key | undefined;
   confirmMove(): void;
   usedSan: boolean;
-  jump(delta: number): void;
+  legalSans: SanToUci | null;
+  arrowNavigate(arrowKey: ArrowKey): void;
   justSelected(): boolean;
   draw(): void;
   next(): void;
@@ -47,18 +53,18 @@ interface CrazyPocket {
 }
 
 export interface RootData {
-  crazyhouse?: { pockets: [CrazyPocket, CrazyPocket] };
   game: { variant: { key: VariantKey } };
-  player: { color: Color };
+  player: { color: Color | 'both' };
   opponent?: { color: Color; user?: { username: string } };
 }
 
 export interface KeyboardMoveRootCtrl extends MoveRootCtrl {
   sendNewPiece?: (role: cg.Role, key: cg.Key, isPredrop: boolean) => void;
   userJumpPlyDelta?: (plyDelta: Ply) => void;
-  sendMove?: (orig: cg.Key, dest: cg.Key, prom: cg.Role | undefined, meta: cg.MoveMetadata) => void;
+  handleArrowKey?: (arrowKey: ArrowKey) => void;
   submitMove?: (v: boolean) => void;
   crazyValid?: (role: cg.Role, key: cg.Key) => boolean;
+  getCrazyhousePockets?: () => [CrazyPocket, CrazyPocket] | undefined;
   data: RootData;
 }
 
@@ -80,14 +86,16 @@ export function ctrl(root: KeyboardMoveRootCtrl): KeyboardMove {
   return {
     drop(key, piece) {
       const role = sanToRole[piece];
-      const crazyData = root.data.crazyhouse;
-      const color = root.data.player.color;
+      const crazyhousePockets = root.getCrazyhousePockets?.();
+      const color = root.data.player.color === 'both' ? cg.state.movable.color : root.data.player.color;
+      // Unable to determine what color we are
+      if (!color || color === 'both') return;
       // Crazyhouse not set up properly
       if (!root.crazyValid || !root.sendNewPiece) return;
       // Square occupied
-      if (!role || !crazyData || cg.state.pieces.has(key)) return;
+      if (!role || !crazyhousePockets || cg.state.pieces.has(key)) return;
       // Piece not in Pocket
-      if (!crazyData.pockets[color === 'white' ? 0 : 1][role]) return;
+      if (!crazyhousePockets[color === 'white' ? 0 : 1][role]) return;
       if (!root.crazyValid(role, key)) return;
       cg.cancelMove();
       cg.newPiece({ role, color }, key);
@@ -99,7 +107,7 @@ export function ctrl(root: KeyboardMoveRootCtrl): KeyboardMove {
       if (!role || role == 'pawn' || (role == 'king' && variant !== 'antichess')) return;
       cg.cancelMove();
       promote(cg, dest, role);
-      root.auxMove(orig, dest, role);
+      root.pluginMove(orig, dest, role);
     },
     update(up: MoveUpdate) {
       if (up.cg) cg = up.cg;
@@ -122,9 +130,20 @@ export function ctrl(root: KeyboardMoveRootCtrl): KeyboardMove {
     hasSelected: () => cg.state.selected,
     confirmMove: () => (root.submitMove ? root.submitMove(true) : null),
     usedSan,
-    jump(plyDelta: number) {
-      root.userJumpPlyDelta && root.userJumpPlyDelta(plyDelta);
-      root.redraw();
+    legalSans: null,
+    arrowNavigate(arrowKey: ArrowKey) {
+      if (root.handleArrowKey) {
+        root.handleArrowKey?.(arrowKey);
+        return;
+      }
+
+      const arrowKeyToPlyDelta = {
+        ArrowUp: -999,
+        ArrowDown: 999,
+        ArrowLeft: -1,
+        ArrowRight: 1,
+      };
+      root.userJumpPlyDelta?.(arrowKeyToPlyDelta[arrowKey]);
     },
     justSelected: () => performance.now() - lastSelect < 500,
     draw: () => (root.offerDraw ? root.offerDraw(true, true) : null),

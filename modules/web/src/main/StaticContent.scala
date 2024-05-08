@@ -1,8 +1,10 @@
 package lila.web
 
 import play.api.libs.json.{ JsArray, Json }
+import play.api.mvc.RequestHeader
 
 import lila.common.Json.given
+import lila.common.HTTPRequest
 import lila.core.config.NetConfig
 
 object StaticContent:
@@ -46,7 +48,12 @@ Allow: /
       )
     )
 
-  lazy val variantsJson =
+  def appStoreUrl(using req: RequestHeader) =
+    if HTTPRequest.isAndroid(req)
+    then "https://play.google.com/store/apps/details?id=org.lichess.mobileapp"
+    else "https://apps.apple.com/us/app/lichess-online-chess/id968371784"
+
+  val variantsJson =
     JsArray(chess.variant.Variant.list.all.map { v =>
       Json.obj(
         "id"   -> v.id,
@@ -55,13 +62,22 @@ Allow: /
       )
     })
 
+  val externalLinks = Map(
+    "mastodon" -> "https://mastodon.online/@lichess",
+    "github"   -> "https://github.com/lichess-org",
+    "discord"  -> "https://discord.gg/lichess",
+    "twitter"  -> "https://twitter.com/lichess",
+    "youtube"  -> "https://youtube.com/c/LichessDotOrg",
+    "twitch"   -> "https://www.twitch.tv/lichessdotorg"
+  )
+
   def legacyQaQuestion(id: Int) =
     val faq = routes.Main.faq.url
     id match
       case 103  => s"$faq#acpl"
       case 258  => s"$faq#marks"
       case 13   => s"$faq#titles"
-      case 87   => routes.User.ratingDistribution("blitz").url
+      case 87   => routes.User.ratingDistribution(PerfKey.blitz).url
       case 110  => s"$faq#name"
       case 29   => s"$faq#titles"
       case 4811 => s"$faq#lm"

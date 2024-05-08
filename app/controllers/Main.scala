@@ -1,6 +1,5 @@
 package controllers
 
-import akka.pattern.ask
 import play.api.data.*
 import play.api.libs.json.*
 import play.api.mvc.*
@@ -9,33 +8,25 @@ import lila.app.{ *, given }
 import lila.common.HTTPRequest
 import lila.core.id.GameFullId
 
-import Forms.*
 import lila.core.net.Bearer
+import lila.web.{ WebForms, StaticContent }
 
 final class Main(
     env: Env,
     assetsC: ExternalAssets
 ) extends LilaController(env):
 
-  private lazy val blindForm = Form:
-    tuple(
-      "enable"   -> nonEmptyText,
-      "redirect" -> nonEmptyText
+  def toggleBlindMode = OpenBody:
+    bindForm(WebForms.blind)(
+      _ => BadRequest,
+      (enable, redirect) =>
+        Redirect(redirect).withCookies:
+          lila.web.WebConfig.blindCookie.make(env.security.lilaCookie)(enable != "0")
     )
 
-  def toggleBlindMode = OpenBody:
-    blindForm
-      .bindFromRequest()
-      .fold(
-        _ => BadRequest,
-        (enable, redirect) =>
-          Redirect(redirect).withCookies:
-            lila.web.WebConfig.blindCookie.make(env.security.lilaCookie)(enable != "0")
-      )
-
-  def handlerNotFound(using RequestHeader) =
+  def handlerNotFound(msg: Option[String])(using RequestHeader) =
     makeContext.flatMap:
-      keyPages.notFound(using _)
+      keyPages.notFound(msg)(using _)
 
   def captchaCheck(id: GameId) = Open:
     env.game.captcha.validate(id, ~get("solution")).map { valid =>
@@ -53,10 +44,7 @@ final class Main(
 
   def redirectToAppStore = Anon:
     pageHit
-    Redirect:
-      if HTTPRequest.isAndroid(req)
-      then "https://play.google.com/store/apps/details?id=org.lichess.mobileapp"
-      else "https://apps.apple.com/us/app/lichess-online-chess/id968371784"
+    Redirect(StaticContent.appStoreUrl)
 
   private def serveMobile(using Context) =
     pageHit
@@ -77,12 +65,12 @@ final class Main(
   val robots = Anon:
     Ok:
       if env.net.crawlable && req.domain == env.net.domain.value && env.net.isProd
-      then lila.web.StaticContent.robotsTxt
+      then StaticContent.robotsTxt
       else "User-agent: *\nDisallow: /"
 
   def manifest = Anon:
     JsonOk:
-      lila.web.StaticContent.manifest(env.net)
+      StaticContent.manifest(env.net)
 
   def getFishnet = Open:
     pageHit
@@ -131,29 +119,26 @@ final class Main(
 
   def legacyQaQuestion(id: Int, _slug: String) = Open:
     MovedPermanently:
-      lila.web.StaticContent.legacyQaQuestion(id)
+      StaticContent.legacyQaQuestion(id)
 
   def devAsset(v: String, path: String, file: String) = assetsC.at(path, file)
 
   private val externalMonitorOnce = scalalib.cache.OnceEvery.hashCode[String](10.minutes)
-  def externalLink(tag: String, url: String) = Anon:
-    if HTTPRequest.isCrawler(ctx.req).no && externalMonitorOnce(s"$tag/${ctx.ip}")
-    then lila.mon.link.external(tag, ctx.isAuth).increment()
-    Redirect(url)
-
-  lila.memo.RateLimit.composite[lila.core.net.IpAddress](
-    key = "image.upload.ip"
-  )(
-    ("fast", 10, 2.minutes),
-    ("slow", 60, 1.day)
-  )
+  def externalLink(tag: String) = Anon:
+    StaticContent.externalLinks
+      .get(tag)
+      .so: url =>
+        if HTTPRequest.isCrawler(ctx.req).no && externalMonitorOnce(s"$tag/${ctx.ip}")
+        then lila.mon.link.external(tag, ctx.isAuth).increment()
+        Redirect(url)
 
   def uploadImage(rel: String) = AuthBody(parse.multipartFormData) { ctx ?=> me ?=>
     ctx.body.body.file("image") match
       case Some(image) =>
-        env.memo.picfitApi.bodyImage
-          .upload(rel = rel, image = image, me = me, ip = ctx.ip)
-          .map(url => JsonOk(Json.obj("imageUrl" -> url)))
+        limit.imageUpload(ctx.ip, rateLimited):
+          env.memo.picfitApi.bodyImage
+            .upload(rel = rel, image = image, me = me, ip = ctx.ip)
+            .map(url => JsonOk(Json.obj("imageUrl" -> url)))
       case None => JsonBadRequest(jsonError("Image content only"))
   }
 

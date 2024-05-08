@@ -5,10 +5,11 @@ import play.api.libs.json.*
 import lila.app.UiEnv.{ *, given }
 
 import lila.core.i18n.I18nKey.storm as s
+import lila.core.id.CmsPageKey
 
 def home(using Context) =
   Page("Puzzle Racer")
-    .cssTag("racer-home")
+    .css("racer-home")
     .hrefLangs(lila.ui.LangPath(routes.Racer.home)):
       main(cls := "page page-small racer-home box box-pad")(
         h1(cls := "box__top")("Puzzle Racer"),
@@ -21,13 +22,13 @@ def home(using Context) =
           )
         ),
         div(cls := "racer-home__about")(
-          a(href := routes.Cms.lonePage("racer"))(trans.site.aboutX("Puzzle Racer"))
+          a(href := routes.Cms.lonePage(CmsPageKey("racer")))(trans.site.aboutX("Puzzle Racer"))
         )
       )
 
 def show(data: JsObject)(using Context) =
   Page("Puzzle Racer")
-    .cssTag("racer")
+    .css("racer")
     .js(PageModule("racer", data ++ Json.obj("i18n" -> i18nJsObject(i18nKeys))))
     .zoom
     .zen:

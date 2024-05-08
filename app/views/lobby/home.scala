@@ -30,7 +30,7 @@ object home:
             )
         )
       )
-      .cssTag("lobby")
+      .css("lobby")
       .graph(
         OpenGraph(
           image = assetUrl("logo/lichess-tile-wide.png").some,
@@ -79,7 +79,7 @@ object home:
             ),
             div(cls := "lobby__spotlights")(
               events.map(bits.spotlight),
-              views.relay.bits.spotlight(relays),
+              views.relay.ui.spotlight(relays),
               ctx.noBot.option {
                 val nbManual = events.size + relays.size
                 val simulBBB = simuls.find(isFeaturable(_) && nbManual < 4)

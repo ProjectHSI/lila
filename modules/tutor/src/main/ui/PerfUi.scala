@@ -46,7 +46,7 @@ final class PerfUi(helpers: Helpers, bits: TutorBits):
             frag(report.perf.trans, " openings"),
             routes.Tutor.openings(user.username, report.perf.key).some
           )(
-            chess.Color.all.map: color =>
+            Color.all.map: color =>
               report.openings(color).families.headOption.map { fam =>
                 grade.peerGrade(concept.adhoc(s"${fam.family.name} as $color"), fam.mix, h4)
               }
@@ -200,11 +200,8 @@ final class PerfUi(helpers: Helpers, bits: TutorBits):
         ),
         div(cls := "tutor__pad")(
           grade.peerGradeWithDetail(concept.accuracy, report.accuracy, InsightPosition.Move),
-          hr,
           grade.peerGradeWithDetail(concept.tacticalAwareness, report.awareness, InsightPosition.Move),
-          hr,
           grade.peerGradeWithDetail(concept.resourcefulness, report.resourcefulness, InsightPosition.Game),
-          hr,
           grade.peerGradeWithDetail(concept.conversion, report.conversion, InsightPosition.Game)
         )
       )
@@ -229,9 +226,7 @@ final class PerfUi(helpers: Helpers, bits: TutorBits):
         ),
         div(cls := "tutor__pad")(
           grade.peerGradeWithDetail(concept.speed, report.globalClock, InsightPosition.Move),
-          hr,
           grade.peerGradeWithDetail(concept.clockFlagVictory, report.flagging.win, InsightPosition.Game),
-          hr,
           grade.peerGradeWithDetail(concept.clockTimeUsage, report.clockUsage, InsightPosition.Game)
         )
       )

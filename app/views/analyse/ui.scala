@@ -1,7 +1,7 @@
 package views.analyse
 
 import play.api.libs.json.{ Json, JsObject }
-import chess.Color
+
 import chess.format.pgn.PgnStr
 
 import lila.app.UiEnv.{ *, given }
@@ -18,7 +18,7 @@ object bits:
   def csp(using Context): Update[lila.ui.ContentSecurityPolicy] =
     ui.csp.compose(_.withPeer.withInlineIconFont.withChessDbCn)
 
-  def analyseModule(mode: String, json: JsObject)(using ctx: Context) =
+  def analyseModule(mode: String, json: JsObject) =
     PageModule("analyse", Json.obj("mode" -> mode, "cfg" -> json))
 
 object embed:
