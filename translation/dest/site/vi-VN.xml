@@ -45,7 +45,7 @@
   <string name="forceDraw">Bắt buộc hòa</string>
   <string name="talkInChat">Hãy cư xử thân thiện trong cuộc trò chuyện!</string>
   <string name="theFirstPersonToComeOnThisUrlWillPlayWithYou">Người đầu tiên sử dụng URL này sẽ bắt đầu chơi với bạn.</string>
-  <string name="whiteResigned">Trắng đầu hàng</string>
+  <string name="whiteResigned">Trắng chịu thua</string>
   <string name="blackResigned">Đen chịu thua</string>
   <string name="whiteLeftTheGame">Trắng đã rời khỏi ván cờ</string>
   <string name="blackLeftTheGame">Đen đã rời khỏi ván cờ</string>
@@ -753,11 +753,12 @@ trò chuyện trong ván đấu và có một URL có thể chia sẻ công khai
   <string name="transparent">Trong suốt</string>
   <string name="deviceTheme">Giao diện thiết bị</string>
   <string name="backgroundImageUrl">URL ảnh nền:</string>
-  <string name="board" comment="Part of the appearance configuration; allows you to change the appearance of your chessboard. This appears in the top-right menu for configuration on the website, or the Preferences menu in the mobile app.">Bàn cờ</string>
-  <string name="size" comment="Part of the appearance configuration; allow you to change the size of the chessboard. This appears in the top-right menu for configuration on the website, or the Preferences menu in the mobile app.">Kích cỡ</string>
+  <string name="board">Bàn cờ</string>
+  <string name="size">Kích cỡ</string>
   <string name="opacity">Độ trong suốt</string>
   <string name="brightness">Độ sáng</string>
-  <string name="boardReset">Cài đặt màu về mặc định</string>
+  <string name="hue">Màu gốc</string>
+  <string name="boardReset">Đặt lại màu về mặc định</string>
   <string name="pieceSet">Bộ cờ</string>
   <string name="embedInYourWebsite">Nhúng vào trang web của bạn</string>
   <string name="usernameAlreadyUsed">Tên người dùng này đã được sử dụng, hãy chọn tên khác.</string>
@@ -917,7 +918,7 @@ Bỏ trống để bắt đầu tất cả ván đấu bằng thế trận ban �
   <string name="inYourLocalTimezone">Tại múi giờ địa phương của bạn</string>
   <string name="tournChat">Trò chuyện trong giải đấu</string>
   <string name="noChat">Không trò chuyện</string>
-  <string name="onlyTeamLeaders">Chỉ các đội trưởng</string>
+  <string name="onlyTeamLeaders">Chỉ các chỉ huy</string>
   <string name="onlyTeamMembers">Chỉ thành viên đội</string>
   <string name="navigateMoveTree">Điều hướng tìm nước đi</string>
   <string name="mouseTricks">Mẹo sử dụng chuột</string>

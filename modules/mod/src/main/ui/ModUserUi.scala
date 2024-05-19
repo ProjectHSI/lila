@@ -201,7 +201,7 @@ final class ModUserUi(helpers: Helpers, modUi: ModUi):
           )
         },
         (Granter.opt(_.Impersonate) || (Granter.opt(_.Admin) && u.id == UserId.lichess)).option {
-          postForm(action := routes.Mod.impersonate(u.username))(
+          postForm(action := routes.Mod.impersonate(u.username.value))(
             submitButton(cls := "btn-rack__btn")("Impersonate")
           )
         }
@@ -233,10 +233,11 @@ final class ModUserUi(helpers: Helpers, modUi: ModUi):
           frag(
             postForm(cls := "email", action := routes.Mod.setEmail(u.username))(
               st.input(
-                tpe         := "email",
-                value       := emails.current.so(_.value),
-                name        := "email",
-                placeholder := "Email address"
+                tpe          := "email",
+                value        := emails.current.so(_.value),
+                name         := "email",
+                placeholder  := "Email address",
+                autocomplete := "off"
               ),
               submitButton(cls := "button", dataIcon := Icon.Checkmark)
             ),
